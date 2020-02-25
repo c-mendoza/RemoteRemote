@@ -17,8 +17,13 @@ class OFStringParameterState extends State<OFStringParameter> {
   TextEditingController _textController;
 
   OFStringParameterState() {
+
+  }
+
+  @override
+  void initState() {
     _textController =
-        TextEditingController(text: widget.param.value.toString());
+      TextEditingController(text: widget.param.value.toString());
   }
 
   @override
@@ -28,16 +33,14 @@ class OFStringParameterState extends State<OFStringParameter> {
       children: <Widget>[
         Text(widget.param.name),
         Container(
-          child: Expanded(
-              flex: 1,
-              child: TextField(
-                controller: _textController,
-                onChanged: (String v) {
-                  setState(() {
-                    widget.param.value = v;
-                  });
-                },
-              )),
+          child: TextField(
+            controller: _textController,
+            onChanged: (String v) {
+              setState(() {
+                widget.param.value = v;
+              });
+            },
+          ),
         )
       ],
     );

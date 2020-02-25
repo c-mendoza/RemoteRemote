@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 import 'of_parameter_controller.dart';
@@ -16,15 +17,15 @@ class OFParameter<T> extends OFBaseParameter {
   T _min;
   T _max;
 
-  String _name;
-  String _path;
+  final String name;
+  final String path;
 
   OFParameter(
     this._value,
     {
-      String name,
-      String path,
-      OFParameterType type,
+      @required this.name,
+      @required this.path,
+      @required OFParameterType type,
       T min,
       T max,
     }) : super(
@@ -45,15 +46,9 @@ class OFParameter<T> extends OFBaseParameter {
     //NOTIFY?
   }
 
-  String get name => _name;
-
-  String get path => _path;
-
   T get max => _max;
 
   T get min => _min;
-
-
 }
 
 class OFParameterGroup extends OFBaseParameter {
@@ -68,4 +63,21 @@ class OFParameterGroup extends OFBaseParameter {
     path: path,
     type: OFParameterType.group,
     );
+
+  void addChild(OFBaseParameter param) {
+    children.add(param);
+  }
+}
+
+class OFBaseParameterWidget extends StatefulWidget {
+  final OFBaseParameter param;
+
+  const OFBaseParameterWidget({Key key, this.param}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return null;
+  }
+
 }

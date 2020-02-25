@@ -39,24 +39,23 @@ class StartScreenState extends State<StartScreen> {
 
   TextEditingController controller;
   Function onData;
-  OFParameterParser _parameterParser;
+  OFParameterController _parameterController;
 
   StartScreenState() {
     controller = TextEditingController(text: hostAddress);
     Wakelock.enable();
 //    OFParameterParser()
-    _parameterParser = OFParameterParser();
+    _parameterController = OFParameterController();
+    _parameterController.parse(kXmlTestString2);
+
 
   }
 
   @override
   void reassemble() {
     super.reassemble();
-    _parameterParser.parse(kXmlTestString);
-
-  } //  StartScreenState() {
-//    osc = OSCSocket();
-//  }
+    _parameterController.parse(kXmlTestString2);
+  }
 
   void setupOsc() async {
     localIpAddress = await Wifi.ip;
@@ -124,11 +123,49 @@ class StartScreenState extends State<StartScreen> {
                     osc.send(m);
                   },
                 ),
+                BottomButton(label: 'Done', onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (
+                        context) =>
+                        OFParameterGroupView(group: _parameterController.getParameterGroup(),)
+                      )
+                    );
+                }),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+class BottomButton extends StatelessWidget {
+  final String label;
+  final Function onTap;
+  const BottomButton({
+                       Key key, @required this.label, @required this.onTap,
+                     }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.only(top: 10.0),
+        padding: EdgeInsets.only(bottom: 20.0),
+        color: Colors.blueGrey,
+        width: double.infinity,
+        height: 30,
+        child: Center(
+          child: Text(
+            label,
+            style: kLargeButtonTextStyle,
+            ),
+          ),
+        ),
+      );
   }
 }
