@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import 'package:osc/osc.dart';
 import 'package:get_ip/get_ip.dart';
 import 'package:osc_remote/constants.dart';
@@ -8,14 +9,23 @@ import 'package:osc_remote/of_parameter_controller/of_parameter_controller.dart'
 import 'package:wakelock/wakelock.dart';
 import 'package:wifi/wifi.dart';
 
+import 'of_parameter_controller/widgets/of_group_view.dart';
 
 
-void main() => runApp(ParameterEditor());
 
+void main() {
+  Logger.root.level = Level.ALL; // defaults to Level.INFO
+  Logger.root.onRecord.listen((record) {
+//    print('${record.level.name}: ${record.time}: ${record.message}');
+    print('${record.level.name}: ${record.message}');
+
+  });
+  return runApp(ParameterEditor());
+
+}
 class ParameterEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return MaterialApp(
       home: StartScreen(),
     );
@@ -25,7 +35,6 @@ class ParameterEditor extends StatelessWidget {
 class StartScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return StartScreenState();
   }
 }
@@ -81,7 +90,6 @@ class StartScreenState extends State<StartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       body: Container(
         constraints: BoxConstraints.expand(),
@@ -129,7 +137,7 @@ class StartScreenState extends State<StartScreen> {
                     MaterialPageRoute(
                       builder: (
                         context) =>
-                        OFParameterGroupView(group: _parameterController.getParameterGroup(),)
+                        OFParameterGroupView(group: _parameterController.getParameterGroup(), controller: _parameterController,)
                       )
                     );
                 }),

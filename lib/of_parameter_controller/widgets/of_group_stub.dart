@@ -4,14 +4,16 @@ import 'package:osc_remote/constants.dart';
 import 'package:osc_remote/of_parameter_controller/of_parameter_controller.dart';
 import 'package:osc_remote/of_parameter_controller/types.dart';
 
+import 'of_group_view.dart';
+
 class OFParameterGroupStub extends StatelessWidget {
   final OFParameterGroup group;
+  final OFParameterController controller;
 
-  const OFParameterGroupStub(this.group, {Key key}) : super(key: key);
+  const OFParameterGroupStub(this.group, this.controller, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
         return GestureDetector(
           onTap: () {
             Navigator.push(
@@ -19,7 +21,7 @@ class OFParameterGroupStub extends StatelessWidget {
               MaterialPageRoute(
                 builder: (
                   context) =>
-                  OFParameterGroupView(group: group)
+                  OFParameterGroupView(group: group, controller: controller,)
                 )
               );
           },

@@ -16,7 +16,6 @@ class OFBooleanParameterWidget extends StatefulWidget {
 class OFBooleanParameterWidgetState extends State<OFBooleanParameterWidget> {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[

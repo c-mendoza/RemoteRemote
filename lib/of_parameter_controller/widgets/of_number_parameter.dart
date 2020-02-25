@@ -23,14 +23,13 @@ class OFNumberParameterWidgetState extends State<OFNumberParameterWidget> {
   @override
   void initState() {
     _textController = TextEditingController(
-        text: widget.param.type == OFParameterType.integer
+        text: widget.param.type == kIntTypename
             ? widget.param.value.toString()
             : formatNumber(widget.param.value));
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -89,10 +88,10 @@ class OFNumberParameterWidgetState extends State<OFNumberParameterWidget> {
   }
 
   void updateParam(double val) {
-    //TODO the param value needs to be clamped to min max here
+    //The param value needs to be clamped to min max here
     //otherwise editing the text field might crash the UI
     val = val.clamp(widget.param.min, widget.param.max);
-    if (widget.param.type == OFParameterType.integer) {
+    if (widget.param.type == kIntTypename) {
       widget.param.value = val.round();
       _textController.text = widget.param.value.toString();
     } else {

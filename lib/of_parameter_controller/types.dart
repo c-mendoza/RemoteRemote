@@ -6,10 +6,10 @@ import 'of_parameter_controller.dart';
 class OFBaseParameter {
   final String name;
   final String path;
-  final OFParameterType type;
+  final String type;
 
   OFBaseParameter(
-    {@required this.name, @required this.path, @required this.type});
+      {@required this.name, @required this.path, @required this.type});
 }
 
 class OFParameter<T> extends OFBaseParameter {
@@ -21,27 +21,24 @@ class OFParameter<T> extends OFBaseParameter {
   final String path;
 
   OFParameter(
-    this._value,
-    {
-      @required this.name,
-      @required this.path,
-      @required OFParameterType type,
-      T min,
-      T max,
-    }) : super(
-    name: name,
-    path: path,
-    type: type,
-    ) {
+    this._value, {
+    @required this.name,
+    @required this.path,
+    @required String type,
+    T min,
+    T max,
+  }) : super(
+          name: name,
+          path: path,
+          type: type,
+        ) {
     _min ??= min;
     _max ??= max;
   }
 
-
   T get value => _value;
 
-  set value(
-    T value) {
+  set value(T value) {
     _value = value;
     //NOTIFY?
   }
@@ -54,30 +51,22 @@ class OFParameter<T> extends OFBaseParameter {
 class OFParameterGroup extends OFBaseParameter {
   List<OFBaseParameter> children = [];
 
-  OFParameterGroup(
-    {
-      String name,
-      String path,
-    }) : super(
-    name: name,
-    path: path,
-    type: OFParameterType.group,
-    );
+  OFParameterGroup({
+    String name,
+    String path,
+  }) : super(
+          name: name,
+          path: path,
+          type: kGroupTypename,
+        );
 
   void addChild(OFBaseParameter param) {
     children.add(param);
   }
 }
 
-class OFBaseParameterWidget extends StatefulWidget {
+abstract class OFBaseParameterWidget extends StatefulWidget {
   final OFBaseParameter param;
 
-  const OFBaseParameterWidget({Key key, this.param}) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return null;
-  }
-
+  const OFBaseParameterWidget(this.param, {Key key}) : super(key: key);
 }

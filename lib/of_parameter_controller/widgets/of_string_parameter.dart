@@ -28,7 +28,6 @@ class OFStringParameterState extends State<OFStringParameter> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Column(
       children: <Widget>[
         Text(widget.param.name),
