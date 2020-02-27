@@ -1,14 +1,19 @@
 library of_parameter_controller;
 
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_focus_watcher/flutter_focus_watcher.dart';
 import 'package:logging/logging.dart';
+import 'package:osc/osc.dart';
+import 'package:osc_remote/of_parameter_controller/networking_controller.dart';
 import 'package:osc_remote/of_parameter_controller/types.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_boolean_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_group_stub.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_number_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_string_parameter.dart';
+import 'package:wifi/wifi.dart';
 import 'package:xml/xml.dart' as xml;
 
 const String kGroupTypename = 'group';
@@ -29,13 +34,23 @@ typedef DeserializerFunction = OFBaseParameter Function(
 
 typedef ParameterBuilderFunction = Widget Function(OFParameter param);
 
-class OFParameterController {
-  OFParameterGroup _root;
-
+class OFParameterController with ChangeNotifier {
+  OFParameterGroup _group;
+  NetworkingController netController;
   Logger log = Logger('OFParameterController');
 
   Map<String, ParameterBuilderFunction> _typeBuilders = {};
   Map<String, DeserializerFunction> _typeDeserializers = {};
+
+
+
+  OFParameterGroup get group => _group;
+
+//  set root(OFParameterGroup value) {
+//    _root = value;
+//  }
+
+
 
   OFParameterController() {
     addType(kStringTypename, ({value, type, name, path, min, max}) {
@@ -94,20 +109,38 @@ class OFParameterController {
     }, (param) => OFStringParameter(param));
   }
 
+
+  ////////////////// DATA AND SERIALIZATION
+  /////////////////////////////////////////
+  /////////////////////////////////////////
+  /////////////////////////////////////////
+
   void addType(String name, DeserializerFunction deserializer,
       ParameterBuilderFunction builder) {
     _typeBuilders.putIfAbsent(name, () => builder);
     _typeDeserializers.putIfAbsent(name, () => deserializer);
   }
 
-  void parse(String xmlString) {
-    var document = xml.parse(xmlString);
+  /// Parses the XML string and starts the deserialization. Returns false if either
+  /// the parsing or the deserialization fails.
+  bool parse(String xmlString) {
+    try {
+      var document = xml.parse(xmlString);
 
 //    print(document.rootElement.findElements('children').first.root);
-    _root = deserializeGroup(document.rootElement);
+      _group = deserializeGroup(document.rootElement);
+      if (_group == null) {
+        log.severe('Error parsing parameterGroup');
+        return false;
+      }
+      return true;
+    } catch (e) {
+      log.severe('Error parsing group xml.\n XML String:\n{$xmlString');
+      return false;
+    }
   }
 
-  /// Deserializes an ofParamterGroup
+  /// Deserializes an ofParameterGroup
   OFParameterGroup deserializeGroup(xml.XmlElement element) {
     //Basic check, the root element should be type group
     var res = element.attributes
@@ -151,8 +184,9 @@ class OFParameterController {
       if (el.isNotEmpty) max = el.first.text;
     } catch (e) {}
 
+    var param;
     if (_typeDeserializers.containsKey(typeString)) {
-      return _typeDeserializers[typeString](
+      param = _typeDeserializers[typeString](
           value: value,
           name: name,
           type: typeString,
@@ -160,12 +194,19 @@ class OFParameterController {
           min: min,
           max: max);
     } else {
-      return _typeDeserializers[kUnknownTypename](
+      param = _typeDeserializers[kUnknownTypename](
           value: value,
           name: name,
           path: pathForElement(element),
           type: kUnknownTypename);
     }
+
+    (param as OFParameter).addListener((param) {
+      print(param);
+      netController.sendParameter(param);
+    });
+
+    return param;
   }
 
   /// Creates a calling path for a given element
@@ -189,8 +230,6 @@ class OFParameterController {
     return path;
   }
 
-  OFParameterGroup getParameterGroup() => _root;
-
   Widget getBuilder(OFBaseParameter param) {
     if (_typeBuilders.containsKey(param.type)) {
       return _typeBuilders[param.type](param);
@@ -198,6 +237,15 @@ class OFParameterController {
       return _typeBuilders[kUnknownTypename](param);
     }
   }
+
+  // GETTERS AND SETTERS
+  /////////////////////////////////////////
+  /////////////////////////////////////////
+  /////////////////////////////////////////
+
+  OFParameterGroup getParameterGroup() => _group;
+
+
 }
 
 class ParamContainer extends StatelessWidget {

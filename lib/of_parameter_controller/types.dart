@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:property_change_notifier/property_change_notifier.dart';
 
 import 'of_parameter_controller.dart';
 
@@ -12,18 +13,16 @@ class OFBaseParameter {
       {@required this.name, @required this.path, @required this.type});
 }
 
-class OFParameter<T> extends OFBaseParameter {
+// ignore: mixin_inherits_from_not_object
+class OFParameter<T> extends OFBaseParameter with PropertyChangeNotifier {
   T _value;
   T _min;
   T _max;
 
-  final String name;
-  final String path;
-
   OFParameter(
     this._value, {
-    @required this.name,
-    @required this.path,
+    @required String name,
+    @required String path,
     @required String type,
     T min,
     T max,
@@ -40,12 +39,17 @@ class OFParameter<T> extends OFBaseParameter {
 
   set value(T value) {
     _value = value;
+    notifyListeners(this);
     //NOTIFY?
   }
 
   T get max => _max;
 
   T get min => _min;
+
+  String toString() {
+    return _value.toString();
+  }
 }
 
 class OFParameterGroup extends OFBaseParameter {

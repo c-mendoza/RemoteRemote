@@ -22,7 +22,10 @@ dependencies:
   flutter_focus_watcher:
   flutter_colorpicker:
   logging: ^0.11.4
-  
+  provider: ^4.0.4
+  flutter_spinkit: ^2.1.0
+  property_change_notifier: ^0.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

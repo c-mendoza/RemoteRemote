@@ -8,9 +8,8 @@ import 'of_group_view.dart';
 
 class OFParameterGroupStub extends StatelessWidget {
   final OFParameterGroup group;
-  final OFParameterController controller;
 
-  const OFParameterGroupStub(this.group, this.controller, {Key key}) : super(key: key);
+  const OFParameterGroupStub(this.group, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +20,7 @@ class OFParameterGroupStub extends StatelessWidget {
               MaterialPageRoute(
                 builder: (
                   context) =>
-                  OFParameterGroupView(group: group, controller: controller,)
+                  OFParameterGroupView(group)
                 )
               );
           },
