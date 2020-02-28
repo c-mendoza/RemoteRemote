@@ -1,6 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+const kLargeButtonTextStyle =
+    TextStyle(fontSize: 26.0, fontWeight: FontWeight.w900);
+
+const kLabelStyle = TextStyle(
+  fontSize: 18.0,
+  //  color: Color(0xFF8D8E98),
+);
+
+const kSubLabelTextStyle = TextStyle(
+  fontSize: 14.0,
+);
+
+const kBorderRadius = 8.0;
+
+const kMaxDecimals = 3;
+
 var kXmlTestString = '''
 <Model_Example type="group">
 	<App_Settings type="group">
@@ -234,17 +250,3 @@ var kXmlTestString2 = '''
 	<Multilines type="group" name="Multilines" />
 </Nervous_Structure>
 ''';
-
-const kLargeButtonTextStyle =
-    TextStyle(fontSize: 26.0, fontWeight: FontWeight.w900);
-
-const kLabelStyle = TextStyle(
-  fontSize: 18.0,
-  //  color: Color(0xFF8D8E98),
-);
-
-const kSubLabelTextStyle = TextStyle(
-  fontSize: 14.0,
-);
-
-const kMaxDecimals = 3;

@@ -10,6 +10,7 @@ import 'package:osc/osc.dart';
 import 'package:osc_remote/of_parameter_controller/networking_controller.dart';
 import 'package:osc_remote/of_parameter_controller/types.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_boolean_parameter.dart';
+import 'package:osc_remote/of_parameter_controller/widgets/of_color_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_group_stub.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_number_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_string_parameter.dart';
@@ -19,12 +20,13 @@ import 'package:xml/xml.dart' as xml;
 const String kGroupTypename = 'group';
 const String kIntTypename = 'int';
 const String kFloatTypename = 'float';
+const String kDoubleTypename = 'double';
 const String kBoolTypename = 'boolean';
 const String kColorTypename = 'floatColor';
 const String kStringTypename = 'string';
 const String kUnknownTypename = 'unknown';
 
-typedef DeserializerFunction = OFBaseParameter Function(
+typedef DeserializingFunction = OFBaseParameter Function(
     {@required String value,
     @required String type,
     @required String name,
@@ -33,6 +35,11 @@ typedef DeserializerFunction = OFBaseParameter Function(
     String max});
 
 typedef ParameterBuilderFunction = Widget Function(OFParameter param);
+typedef SerializingFunction = String Function(OFParameter param);
+
+final SerializingFunction defaultSerializer = (param) {
+  return param.toString();
+};
 
 class OFParameterController with ChangeNotifier {
   OFParameterGroup _group;
@@ -40,17 +47,10 @@ class OFParameterController with ChangeNotifier {
   Logger log = Logger('OFParameterController');
 
   Map<String, ParameterBuilderFunction> _typeBuilders = {};
-  Map<String, DeserializerFunction> _typeDeserializers = {};
-
-
+  Map<String, DeserializingFunction> _typeDeserializers = {};
+  Map<String, SerializingFunction> _typeSerializers = {};
 
   OFParameterGroup get group => _group;
-
-//  set root(OFParameterGroup value) {
-//    _root = value;
-//  }
-
-
 
   OFParameterController() {
     addType(kStringTypename, ({value, type, name, path, min, max}) {
@@ -79,46 +79,79 @@ class OFParameterController with ChangeNotifier {
           max: double.parse(max));
     }, (param) => OFNumberParameterWidget(param));
 
-    addType(kBoolTypename, ({value, type, name, path, min, max}) {
-      return OFParameter<bool>(value == '1',
-          name: name, type: type, path: path);
-    }, (param) => OFBooleanParameterWidget(param));
+    addType(kDoubleTypename, ({value, type, name, path, min, max}) {
+      return OFParameter<double>(double.parse(value),
+          name: name,
+          type: type,
+          path: path,
+          min: double.parse(min),
+          max: double.parse(max));
+    }, (param) => OFNumberParameterWidget(param));
 
-    addType(kColorTypename, ({value, type, name, path, min, max}) {
-      var colorChannels = [];
-      value.split(',').forEach((String s) {
-        var v = double.tryParse(s.trim());
-        if (v == null) {
-          v = 0;
-          log.severe('Error parsing color channel');
-        }
-        var ch = v * 255;
-        colorChannels.add(ch.toInt());
-      });
+    addType(
+        kBoolTypename,
+        ({value, type, name, path, min, max}) {
+          return OFParameter<bool>(value == '1',
+              name: name, type: type, path: path);
+        },
+        (param) => OFBooleanParameterWidget(param),
+        (param) {
+          bool val = param.value as bool;
+          if (val) {
+            return '1';
+          } else {
+            return '0';
+          }
+        });
 
-      if (colorChannels.length != 4) {
-        log.severe(
-            'In parsing ofFloatColor: Incorrect number of color channels');
-        return _typeDeserializers[kStringTypename](
-            value: value, type: kUnknownTypename, name: name, path: path);
-      }
+    addType(
+        kColorTypename,
+        ({value, type, name, path, min, max}) {
+          var colorChannels = [];
+          value.split(',').forEach((String s) {
+            var v = double.tryParse(s.trim());
+            if (v == null) {
+              v = 0;
+              log.severe('Error parsing color channel');
+            }
+            var ch = v * 255;
+            colorChannels.add(ch.toInt());
+          });
 
-      var color = Color.fromARGB(colorChannels[3], colorChannels[0],
-          colorChannels[1], colorChannels[2]);
-      return OFParameter<Color>(color, name: name, type: type, path: path);
-    }, (param) => OFStringParameter(param));
+          if (colorChannels.length != 4) {
+            log.severe(
+                'In parsing ofFloatColor: Incorrect number of color channels');
+            return _typeDeserializers[kStringTypename](
+                value: value, type: kUnknownTypename, name: name, path: path);
+          }
+
+          var color = Color.fromARGB(colorChannels[3], colorChannels[0],
+              colorChannels[1], colorChannels[2]);
+          return OFParameter<Color>(color, name: name, type: type, path: path);
+        },
+        (param) => OFColorParameterWidget(param),
+        (param) {
+          Color c = param.value as Color;
+          var red = c.red.toDouble() / 255.0;
+          var green = c.green.toDouble() / 255.0;
+          var blue = c.blue.toDouble() / 255.0;
+          var alpha = c.alpha.toDouble() / 255.0;
+          return '$red, $green, $blue, $alpha';
+        });
   }
-
 
   ////////////////// DATA AND SERIALIZATION
   /////////////////////////////////////////
   /////////////////////////////////////////
   /////////////////////////////////////////
 
-  void addType(String name, DeserializerFunction deserializer,
-      ParameterBuilderFunction builder) {
+  void addType(String name, DeserializingFunction deserializer,
+      ParameterBuilderFunction builder,
+      [SerializingFunction serializer]) {
     _typeBuilders.putIfAbsent(name, () => builder);
     _typeDeserializers.putIfAbsent(name, () => deserializer);
+    serializer ??= defaultSerializer;
+    _typeSerializers.putIfAbsent(name, () => serializer);
   }
 
   /// Parses the XML string and starts the deserialization. Returns false if either
@@ -201,12 +234,17 @@ class OFParameterController with ChangeNotifier {
           type: kUnknownTypename);
     }
 
-    (param as OFParameter).addListener((param) {
-      print(param);
-      netController.sendParameter(param);
+    param.addListener((changedParam) {
+      String valueString = serializeParameter(changedParam);
+      print(valueString);
+      netController.sendParameter(changedParam.path, valueString);
     });
 
     return param;
+  }
+
+  String serializeParameter(OFParameter param) {
+    return _typeSerializers[param.type](param);
   }
 
   /// Creates a calling path for a given element
@@ -244,8 +282,6 @@ class OFParameterController with ChangeNotifier {
   /////////////////////////////////////////
 
   OFParameterGroup getParameterGroup() => _group;
-
-
 }
 
 class ParamContainer extends StatelessWidget {

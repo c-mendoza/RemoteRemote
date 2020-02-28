@@ -13,11 +13,14 @@ class OFBaseParameter {
       {@required this.name, @required this.path, @required this.type});
 }
 
+//typedef String SerializingFunction<T>(T value);
+
 // ignore: mixin_inherits_from_not_object
 class OFParameter<T> extends OFBaseParameter with PropertyChangeNotifier {
   T _value;
   T _min;
   T _max;
+//  SerializingFunction<T> _serializer;
 
   OFParameter(
     this._value, {
@@ -26,6 +29,7 @@ class OFParameter<T> extends OFBaseParameter with PropertyChangeNotifier {
     @required String type,
     T min,
     T max,
+//    SerializingFunction serialize,
   }) : super(
           name: name,
           path: path,
@@ -33,6 +37,10 @@ class OFParameter<T> extends OFBaseParameter with PropertyChangeNotifier {
         ) {
     _min ??= min;
     _max ??= max;
+//    serialize ??= (theValue) {
+//      return _value.toString();
+//    };
+
   }
 
   T get value => _value;

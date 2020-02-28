@@ -103,8 +103,22 @@ class StartScreenState extends State<StartScreen> {
                       child: Text("Connect"),
                       onPressed: () {
                         // Connect to OSC
-                        netController.connect(controller.text, paramController);
+                        netController.connect(controller.text, paramController, onSuccess: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OFParameterGroupView(paramController.group)));
+                        });
                       }),
+                  FlatButton(
+                    child: Text("Debug Connect"),
+                    onPressed: () {
+                      paramController.parse(kXmlTestString2);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OFParameterGroupView(paramController.group)));
+                    }),
                   Consumer<NetworkingController>(
                     builder: (context, nc, _) {
                       return StatusDisplay(
