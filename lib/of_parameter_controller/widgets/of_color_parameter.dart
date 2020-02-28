@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:osc_remote/constants.dart';
-import 'package:osc_remote/of_parameter_controller/of_parameter_controller.dart';
 import 'package:osc_remote/of_parameter_controller/types.dart';
 
 class OFColorParameterWidget extends StatefulWidget {

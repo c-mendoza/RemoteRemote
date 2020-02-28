@@ -4,28 +4,90 @@ import 'package:osc_remote/constants.dart';
 import 'package:osc_remote/of_parameter_controller/of_parameter_controller.dart';
 import 'package:osc_remote/of_parameter_controller/types.dart';
 
-class OFNumberParameterWidget extends StatefulWidget {
+class OFNumberParameterWidget extends StatelessWidget {
   final OFParameter param;
 
   const OFNumberParameterWidget(this.param, {Key key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => OFNumberParameterWidgetState();
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return NumberEditor(
+      label: param.name,
+      initialValue: param.value,
+      min: param.min,
+      max: param.max,
+      decimals: param.type == kIntTypename ? 0 : kMaxDecimals,
+      onChanged: (val) {
+        param.value = val;
+      },
+    );
+  }
+}
+//  @override
+//  State<StatefulWidget> createState() => OFNumberParameterWidgetState();
+
+//}
+//
+//class OFNumberParameterWidgetState extends State<OFNumberParameterWidget> {
+//
+//  OFNumberParameterWidgetState() {
+//  }
+//
+//  @override
+//  void initState() {
+//    _textController = TextEditingController(
+//        text: widget.param.type == kIntTypename
+//            ? widget.param.value.toString()
+//            : formatNumber(widget.param.value));
+//  }
+//
+//  @override
+//  Widget build(BuildContext context) {
+//    return null;
+//  }
+//
+//}
+
+class NumberEditor extends StatefulWidget {
+  final ValueChanged<num> onChanged;
+
+  /// The number of decimals that the value will display, without affecting
+  /// the underlying value. The default is 3.
+  /// If set to 0, however, the value will be rounded. Use 0 when you
+  /// want to handle integers.
+  final int decimals;
+
+  final num initialValue;
+  final num min;
+  final num max;
+
+  final String label;
+
+  const NumberEditor(
+      {Key key,
+      this.onChanged,
+      this.decimals = 3,
+      this.min = 0,
+      this.max = 0,
+      this.initialValue = 0,
+      this.label})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return NumberEditorState();
+  }
 }
 
-class OFNumberParameterWidgetState extends State<OFNumberParameterWidget> {
+class NumberEditorState extends State<NumberEditor> {
+  double value;
   TextEditingController _textController;
-
-  OFNumberParameterWidgetState() {
-//    _textController = TextEditingController(text: widget.param.value.toString());
-  }
 
   @override
   void initState() {
-    _textController = TextEditingController(
-        text: widget.param.type == kIntTypename
-            ? widget.param.value.toString()
-            : formatNumber(widget.param.value));
+    value = widget.initialValue.toDouble();
+    _textController = TextEditingController(text: formatNumber(value));
   }
 
   @override
@@ -39,46 +101,39 @@ class OFNumberParameterWidgetState extends State<OFNumberParameterWidget> {
               Expanded(
                 flex: 4,
                 child: Text(
-                  widget.param.name,
+                  widget.label,
                   textAlign: TextAlign.left,
                   style: kLabelStyle,
                 ),
               ),
               Expanded(
-                  flex: 1,
-                  child: TextField(
-                    decoration: InputDecoration(border: InputBorder.none),
-                    textAlign: TextAlign.end,
-                    style: kLabelStyle,
-                    controller: _textController,
-                    onEditingComplete: () {
-                      setState(() {
-                        var val = double.tryParse(_textController.text);
-                        if (val != null) updateParam(val);
-                        FocusScope.of(context).unfocus();
-                      });
-                    },
-                    //                  onChanged: (String v) {
-                    //                    setState(() {
-                    //                      var val = double.tryParse(v);
-                    //                      if (val != null) updateParam(val);
-                    //                    });
-                    //                  },
-                  ))
+                flex: 1,
+                child: TextField(
+                  decoration: InputDecoration(border: InputBorder.none),
+                  textAlign: TextAlign.end,
+                  style: kLabelStyle,
+                  controller: _textController,
+                  onEditingComplete: () {
+                    setState(() {
+                      var val = double.tryParse(_textController.text);
+                      if (val != null) updateValue(val);
+                      FocusScope.of(context).unfocus();
+                    });
+                  },
+                ),
+              )
             ],
           ),
         ),
         SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-//                    trackShape: CustomTrackShape(),
-              ),
+          data: SliderTheme.of(context).copyWith(),
           child: Slider(
-            value: widget.param.value.toDouble(),
-            max: widget.param.max.toDouble(),
-            min: widget.param.min.toDouble(),
+            value: value,
+            max: widget.max.toDouble(),
+            min: widget.min.toDouble(),
             onChanged: (double val) {
               setState(() {
-                updateParam(val);
+                updateValue(val);
               });
             },
           ),
@@ -87,21 +142,23 @@ class OFNumberParameterWidgetState extends State<OFNumberParameterWidget> {
     );
   }
 
-  void updateParam(double val) {
+  void updateValue(double val) {
     //The param value needs to be clamped to min max here
     //otherwise editing the text field might crash the UI
-    val = val.clamp(widget.param.min, widget.param.max);
-    if (widget.param.type == kIntTypename) {
-      widget.param.value = val.round();
-      _textController.text = widget.param.value.toString();
+    val = val.clamp(widget.min, widget.max);
+    if (widget.decimals == 0) {
+      value = val.round().toDouble();
+      _textController.text = value.toStringAsFixed(0);
+      widget.onChanged(value.toInt());
     } else {
-      widget.param.value = val;
+      value = val;
       _textController.text = formatNumber(val);
+      widget.onChanged(value);
     }
   }
 
-  String formatNumber(double val) {
-    int decimals = kMaxDecimals;
+  String formatNumber(num val) {
+    int decimals = widget.decimals;
     var text = val.toStringAsFixed(decimals);
 
     while (text.length > 6 && decimals > 0) {

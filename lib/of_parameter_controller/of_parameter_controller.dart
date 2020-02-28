@@ -13,6 +13,7 @@ import 'package:osc_remote/of_parameter_controller/widgets/of_boolean_parameter.
 import 'package:osc_remote/of_parameter_controller/widgets/of_color_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_group_stub.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_number_parameter.dart';
+import 'package:osc_remote/of_parameter_controller/widgets/of_rect_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_string_parameter.dart';
 import 'package:wifi/wifi.dart';
 import 'package:xml/xml.dart' as xml;
@@ -138,6 +139,17 @@ class OFParameterController with ChangeNotifier {
           var alpha = c.alpha.toDouble() / 255.0;
           return '$red, $green, $blue, $alpha';
         });
+
+    addType('ofRectangle', ({value, type, name, path, min, max}) {
+      return OFParameter<String>(
+        value,
+        name: name,
+        type: type,
+        path: path,
+      );
+    }, (param) {
+      return OFRectParameterWidget(param);
+    });
   }
 
   ////////////////// DATA AND SERIALIZATION
@@ -237,7 +249,7 @@ class OFParameterController with ChangeNotifier {
     param.addListener((changedParam) {
       String valueString = serializeParameter(changedParam);
       print(valueString);
-      netController.sendParameter(changedParam.path, valueString);
+      netController?.sendParameter(changedParam.path, valueString);
     });
 
     return param;
