@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:wifi/wifi.dart';
 
+import 'debug_constants.dart';
 import 'of_parameter_controller/widgets/of_group_view.dart';
 
 void main() {
@@ -67,8 +68,10 @@ class StartScreenState extends State<StartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final paramController = Provider.of<OFParameterController>(context, listen: false);
-    final netController = Provider.of<NetworkingController>(context, listen: false);
+    final paramController =
+        Provider.of<OFParameterController>(context, listen: false);
+    final netController =
+        Provider.of<NetworkingController>(context, listen: false);
     controller.text = netController.hostAddress;
     return FocusWatcher(
       child: Scaffold(
@@ -103,22 +106,25 @@ class StartScreenState extends State<StartScreen> {
                       child: Text("Connect"),
                       onPressed: () {
                         // Connect to OSC
-                        netController.connect(controller.text, paramController, onSuccess: () {
+                        netController.connect(controller.text, paramController,
+                            onSuccess: () {
                           Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => OFParameterGroupView(paramController.group)));
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => OFParameterGroupView(
+                                      paramController.group)));
                         });
                       }),
                   FlatButton(
-                    child: Text("Debug Connect"),
-                    onPressed: () {
-                      paramController.parse(kXmlTestString2);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OFParameterGroupView(paramController.group)));
-                    }),
+                      child: Text("Debug Connect"),
+                      onPressed: () {
+                        paramController.parse(kXmlTestString);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => OFParameterGroupView(
+                                    paramController.group)));
+                      }),
                   Consumer<NetworkingController>(
                     builder: (context, nc, _) {
                       return StatusDisplay(
@@ -145,7 +151,8 @@ class StatusDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (status) {
       case NetStatus.Connected:
-        final paramController = Provider.of<OFParameterController>(context, listen: false);
+        final paramController =
+            Provider.of<OFParameterController>(context, listen: false);
 //        Future.microtask(() => Navigator.push(
 //            context,
 //            MaterialPageRoute(
@@ -154,9 +161,10 @@ class StatusDisplay extends StatelessWidget {
           child: Text('Do it'),
           onPressed: () {
             Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => OFParameterGroupView(paramController.group)));
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        OFParameterGroupView(paramController.group)));
           },
         );
 

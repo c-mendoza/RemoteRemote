@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:osc_remote/of_parameter_controller/widgets/number_editor.dart';
+import 'package:osc_remote/of_parameter_controller/widgets/point_editor.dart';
 
 import '../types.dart';
 
@@ -12,26 +14,31 @@ class OFRectParameterWidget extends StatefulWidget {
 }
 
 class OFRectParameterWidgetState extends State<OFRectParameterWidget> {
-//  double x;
-//  double y;
-//  double width;
-//  double height;
-  OFParameter<double> x;
-  OFParameter<double> y;
-  OFParameter<double> width;
-  OFParameter<double> height;
+  double x;
+  double y;
+  double width;
+  double height;
 
-  OFRectParameterWidgetState() {
+  @override
+  void initState() {
     var vals = widget.param.value.split(',');
-    x.value = double.parse(vals[0]);
-    y.value = double.parse(vals[1]);
-    width.value = double.parse(vals[3]);
-    height.value = double.parse(vals[4]);
+    x = double.parse(vals[0]);
+    y = double.parse(vals[1]);
+    width = double.parse(vals[3]);
+    height = double.parse(vals[4]);
   }
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return null;
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          PointEditor(
+            point: Offset(x, y),
+            onChange: (offset) {},
+          )
+        ]);
   }
 }
