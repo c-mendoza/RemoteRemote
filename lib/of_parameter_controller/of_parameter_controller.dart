@@ -13,6 +13,7 @@ import 'package:osc_remote/of_parameter_controller/widgets/of_boolean_parameter.
 import 'package:osc_remote/of_parameter_controller/widgets/of_color_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_group_stub.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_number_parameter.dart';
+import 'package:osc_remote/of_parameter_controller/widgets/of_path_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_rect_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_string_parameter.dart';
 import 'package:wifi/wifi.dart';
@@ -149,6 +150,17 @@ class OFParameterController with ChangeNotifier {
       );
     }, (param) {
       return OFRectParameterWidget(param);
+    });
+
+    addType('ofPath', ({value, type, name, path, min, max}) {
+      return OFParameter<String>(
+        value,
+        name: name,
+        type: type,
+        path: path,
+        );
+    }, (param) {
+      return OFPathParameter(param);
     });
   }
 

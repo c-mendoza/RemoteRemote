@@ -9,6 +9,16 @@ const kLabelStyle = TextStyle(
   //  color: Color(0xFF8D8E98),
 );
 
+const kButtonStyle = TextStyle(
+  fontSize: 18.0,
+  fontWeight: FontWeight.bold
+);
+
+const kActionLabelStyle = TextStyle (
+  fontSize: 14.0,
+//  color: // Should be the accent color
+  );
+
 const kSubLabelTextStyle = TextStyle(
   fontSize: 14.0,
 );
@@ -18,5 +28,7 @@ const kMaxDecimals = 3;
 
 const kPointEditorPadSize = Size(80.0, 80.0);
 
-const kPointEditorIconSize = Size(80,80);
-const kPointEditorPadding = 40.0;
+const kPointEditorIconSize = 80.0;
+const kPointEditorPadding = 70.0;
+
+const kListItemPadding  = EdgeInsets.fromLTRB(0, 10, 0, 10);

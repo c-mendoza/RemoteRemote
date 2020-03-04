@@ -17,10 +17,10 @@ var kXmlTestString = '''
 		</Send_OSC>
 	</App_Settings>
 	<A_Path type="ofPath" name="A Path">
-		<value>{ 0; 0, 0, 0; 0, 0, 0; 0, 0, 0; } { 1; 2550, 0, 0; 0, 0, 0; 0, 0, 0; } { 1; 2550, 1440, 0; 0, 0, 0; 0, 0, 0; } { 1; 0, 1440, 0; 0, 0, 0; 0, 0, 0; } { 7; 0, 0, 0; 0, 0, 0; 0, 0, 0; } </value>
+		<value>{ 0; 0, 0, 0; 0, 0, 0; 0, 0, 0; } { 3; 2550, 0, 0; 10, 20, 0; 300, 300, 0; } { 1; 2550, 1440, 0; 0, 0, 0; 0, 0, 0; } { 1; 0, 1440, 0; 0, 0, 0; 0, 0, 0; } { 7; 0, 0, 0; 0, 0, 0; 0, 0, 0; } </value>
 	</A_Path>
 	<A_Rectangle type="ofRectangle" name="A Rectangle">
-		<value>0, 0, 0, 300, 300</value>
+		<value>123, 229, 0, 300, 300</value>
 	</A_Rectangle>
 	<Circle_X type="double" name="Circle X">
 		<value>10</value>

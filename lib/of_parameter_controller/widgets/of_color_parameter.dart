@@ -39,7 +39,12 @@ class OFColorParameterWidgetState extends State<OFColorParameterWidget> {
                       height: 40,
                       decoration: BoxDecoration(
                         color: widget.param.value,
-                        borderRadius: BorderRadius.all(Radius.circular(kBorderRadius)),
+                        borderRadius:
+                            BorderRadius.all(Radius.circular(kBorderRadius)),
+                        border: Border.all(
+                            color: Color.fromRGBO(200, 200, 200, 1.0),
+                            width: 1.5,
+                            style: BorderStyle.solid),
                       ),
                     ),
                     onTap: () {

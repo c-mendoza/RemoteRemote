@@ -8,8 +8,10 @@ import '../../constants.dart';
 class PointEditor extends StatefulWidget {
   final Offset point;
   final ValueChanged<Offset> onChange;
+  final String label;
 
-  const PointEditor({Key key, @required this.point, @required this.onChange})
+  const PointEditor(
+      {Key key, @required this.point, @required this.onChange, this.label = ''})
       : super(key: key);
 
   @override
@@ -36,47 +38,55 @@ class _PointEditorState extends State<PointEditor>
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: <Widget>[
-        Expanded(flex: 1, child: buildButtonStack(context)),
-        Expanded(
-          flex: 1,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              NumberEditor(
-                label: 'X',
+        Row(
+          children: <Widget>[
+            Expanded(
+              flex: 2,
+              child: Text(widget.label),
+            ),
+            Expanded(
+              flex: 1,
+              child: NumberEditor(
+                label: 'x:',
                 initialValue: _point.dx,
                 showSlider: false,
                 decimals: 0,
                 labelFlex: 1,
-                numberFlex: 1,
-                labelAlignment: TextAlign.right,
+                numberFlex: 2,
+                labelAlignment: TextAlign.left,
                 numberAlignment: TextAlign.left,
                 onChanged: (val) {
                   setState(() {
-                    widget.onChange(Offset(val, _point.dy));
+                    _point = Offset(val.toDouble(), _point.dy);
+                    widget.onChange(_point);
                   });
                 },
               ),
-              NumberEditor(
-                label: 'Y',
-                initialValue: _point.dx,
+            ),
+            Expanded(
+              flex: 1,
+              child: NumberEditor(
+                label: 'y:',
+                initialValue: _point.dy,
                 showSlider: false,
                 decimals: 0,
                 labelFlex: 1,
-                numberFlex: 1,
-                labelAlignment: TextAlign.right,
+                numberFlex: 2,
+                labelAlignment: TextAlign.left,
                 numberAlignment: TextAlign.left,
                 onChanged: (val) {
                   setState(() {
-                    widget.onChange(Offset(val, _point.dy));
+                    _point = Offset(_point.dx, val.toDouble());
+                    widget.onChange(_point);
                   });
                 },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+        buildButtonStack(context),
       ],
     );
   }
@@ -85,59 +95,78 @@ class _PointEditorState extends State<PointEditor>
     return Center(
       child: Stack(children: <Widget>[
         Positioned(
-          top: -kPointEditorIconSize.height / 4,
-          left: (kPointEditorPadSize.width / 2) +
-              kPointEditorPadding -
-              (kPointEditorIconSize.width / 2),
-          child: ArrowButton(
-              direction: Direction.up,
-              onTap: () {
-                widget.onChange(widget.point.translate(0, 1));
-              }),
-        ),
-        Positioned(
-          top: kPointEditorPadding +
-              (kPointEditorPadSize.height / 2) -
-              (kPointEditorIconSize.height / 2),
+          bottom: kPointEditorPadSize.height + kPointEditorPadding,
           left: kPointEditorPadding +
-              kPointEditorPadSize.width -
-              kPointEditorIconSize.width / 4,
-          child: ArrowButton(
-              direction: Direction.right,
-              onTap: () {
-                widget.onChange(widget.point.translate(1, 0));
-              }),
-        ),
-        Positioned(
-          bottom: -kPointEditorIconSize.height / 4,
-          left: (kPointEditorPadding +
               kPointEditorPadSize.width / 2 -
-              (kPointEditorIconSize.width / 2)),
+              kPointEditorIconSize / 2,
           child: ArrowButton(
-              direction: Direction.down,
-              onTap: () {
-                widget.onChange(widget.point.translate(0, -1));
-              }),
+            direction: Direction.up,
+            onTap: () {
+              setState(() {
+                _point = _point.translate(0, -1);
+                widget.onChange(_point);
+              });
+            },
+            iconSize: kPointEditorIconSize,
+          ),
         ),
         Positioned(
           top: kPointEditorPadding +
-              (kPointEditorPadSize.height / 2) -
-              (kPointEditorIconSize.height / 2),
-          left: -kPointEditorIconSize.width / 4,
+              kPointEditorPadSize.height / 2 -
+              kPointEditorIconSize / 2,
+          left: kPointEditorPadding * 1 + kPointEditorPadSize.width,
           child: ArrowButton(
-              direction: Direction.left,
-              onTap: () {
-                widget.onChange(widget.point.translate(-1, 0));
-              }),
+            direction: Direction.right,
+            onTap: () {
+              setState(() {
+                _point = _point.translate(1, 0);
+                widget.onChange(_point);
+              });
+            },
+            iconSize: kPointEditorIconSize,
+          ),
+        ),
+        Positioned(
+          top: kPointEditorPadSize.height + kPointEditorPadding,
+          left: kPointEditorPadding +
+              kPointEditorPadSize.width / 2 -
+              kPointEditorIconSize / 2,
+          child: ArrowButton(
+            direction: Direction.down,
+            onTap: () {
+              setState(() {
+                _point = _point.translate(0, 1);
+                widget.onChange(_point);
+              });
+            },
+            iconSize: kPointEditorIconSize,
+          ),
+        ),
+        Positioned(
+          top: kPointEditorPadding +
+              kPointEditorPadSize.height / 2 -
+              kPointEditorIconSize / 2,
+          right: kPointEditorPadSize.width + kPointEditorPadding,
+          child: ArrowButton(
+            direction: Direction.left,
+            onTap: () {
+              setState(() {
+                _point = _point.translate(-1, 0);
+                widget.onChange(_point);
+              });
+            },
+            iconSize: kPointEditorIconSize,
+          ),
         ),
         Container(
           padding: EdgeInsets.all(kPointEditorPadding),
-          child: CenterPad(
+          child: DragPad(
             width: kPointEditorPadSize.width,
             height: kPointEditorPadSize.height,
             color: Theme.of(context).accentColor,
             onDrag: (offset) {
               setState(() {
+                offset *= 2.0;
                 _point += offset;
                 widget.onChange(_point);
               });
@@ -205,67 +234,89 @@ class _ArrowButtonState extends State<ArrowButton> {
   }
 }
 
-class CenterPad extends StatefulWidget {
+enum DragPadMode {
+  vertical,
+  horizontal,
+  both,
+}
+
+class DragPad extends StatefulWidget {
+  final DragPadMode mode;
   final double width;
   final double height;
   final Color color;
   final ValueChanged<Offset> onDrag;
 
-  const CenterPad(
+  const DragPad(
       {Key key,
       this.width,
       this.height,
       this.color = Colors.black,
-      this.onDrag})
+      this.onDrag,
+      this.mode = DragPadMode.both})
       : super(key: key);
 
   @override
-  _CenterPadState createState() => _CenterPadState();
+  _DragPadState createState() => _DragPadState();
 }
 
-class _CenterPadState extends State<CenterPad> {
+class _DragPadState extends State<DragPad> {
   @override
   Widget build(BuildContext context) {
     return Listener(
       onPointerDown: (e) {
-        print(e);
+//        print(e);
       },
       onPointerMove: (e) {
-        print('${e.delta} ${e.distance}');
-        widget.onDrag(e.delta);
+        Offset offset;
+        switch (widget.mode) {
+          case DragPadMode.vertical:
+            offset = Offset(0, e.delta.dy);
+            break;
+          case DragPadMode.horizontal:
+            offset = Offset(e.delta.dx, 0);
+            break;
+          case DragPadMode.both:
+            offset = e.delta;
+            break;
+        }
+        widget.onDrag(offset);
       },
+      // Can't specify simultaneous horizontal and vertical detectors, and the
+      // pan detector doesn't inhibit dragging in parent widgets. Hence we
+      // nest GestureDetectors to capture both horizontal and vertical
+      // drags and prevent parents to react to dragging gestures.
       child: GestureDetector(
-        onTapDown: (dets) {
-          print('taaaapped down');
-        },
-        onTap: () {
-          print('TAPPED CENTER PAD');
-        },
-        onPanStart: (details) {
-          // Because of the ListView does not inhibit its verticalDrag gesture
-          // we can't just use Pan gestures. Instead, we use the 'raw' Listeners.
-          // We are specifying the Pan gestures to signal that we are indeed interested in them.
-        },
-        onPanUpdate: (details) {
+        onHorizontalDragStart: (_) {},
+        child: GestureDetector(
+          onTapDown: (dets) {},
+          onTap: () {},
+          onPanStart: (details) {
+            // Because of the ListView does not inhibit its verticalDrag gesture
+            // we can't just use Pan gestures. Instead, we use the 'raw' Listeners.
+            // We are specifying the Pan gestures to signal that we are indeed interested in them.
+          },
+          onPanUpdate: (details) {
 //          print(details);
-        },
-        onPanEnd: (details) {},
-        onVerticalDragStart: (details) {
-          // The vertical drags need to be specified to inhibit the ListView's
-          // vertical gesture
-        },
-        onVerticalDragUpdate: (details) {
-          // The vertical drags need to be specified to inhibit the ListView's
-          // vertical gesture
-        },
-        child: Container(
-            width: widget.width,
-            height: widget.height,
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              border: Border.all(color: widget.color, width: 2.0),
-              borderRadius: BorderRadius.all(Radius.circular(kBorderRadius)),
-            )),
+          },
+          onPanEnd: (details) {},
+          onVerticalDragStart: (details) {
+            // The vertical drags need to be specified to inhibit the ListView's
+            // vertical gesture
+          },
+          onVerticalDragUpdate: (details) {
+            // The vertical drags need to be specified to inhibit the ListView's
+            // vertical gesture
+          },
+          child: Container(
+              width: widget.width,
+              height: widget.height,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(color: widget.color, width: 2.0),
+                borderRadius: BorderRadius.all(Radius.circular(kBorderRadius)),
+              )),
+        ),
       ),
     );
   }
