@@ -158,7 +158,7 @@ class OFParameterController with ChangeNotifier {
         name: name,
         type: type,
         path: path,
-        );
+      );
     }, (param) {
       return OFPathParameter(param);
     });
@@ -260,7 +260,7 @@ class OFParameterController with ChangeNotifier {
 
     param.addListener((changedParam) {
       String valueString = serializeParameter(changedParam);
-      print(valueString);
+//      print(valueString);
       netController?.sendParameter(changedParam.path, valueString);
     });
 
@@ -298,6 +298,38 @@ class OFParameterController with ChangeNotifier {
     } else {
       return _typeBuilders[kUnknownTypename](param);
     }
+  }
+
+  static String serializeColor(Color c) {
+    var red = c.red;
+    var green = c.green;
+    var blue = c.blue;
+    var alpha = c.alpha;
+    return '$red, $green, $blue, $alpha';
+  }
+
+  static Color deserializeColor(String value) {
+    var colorChannels = [];
+    value.split(',').forEach((String s) {
+      var v = double.tryParse(s.trim());
+      if (v == null) {
+        v = 0;
+//        log.severe('Error parsing color channel');
+      }
+      var ch = v;
+      colorChannels.add(ch.toInt());
+    });
+
+    if (colorChannels.length != 4) {
+//      log.severe(
+//        'In parsing ofFloatColor: Incorrect number of color channels');
+//      return _typeDeserializers[kStringTypename](
+//        value: value, type: kUnknownTypename, name: name, path: path);
+      return Color.fromARGB(255, 255, 255, 255);
+    }
+
+    return Color.fromARGB(
+        colorChannels[3], colorChannels[0], colorChannels[1], colorChannels[2]);
   }
 
   // GETTERS AND SETTERS

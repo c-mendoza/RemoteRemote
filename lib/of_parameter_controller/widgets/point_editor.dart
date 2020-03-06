@@ -39,11 +39,12 @@ class _PointEditorState extends State<PointEditor>
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Row(
           children: <Widget>[
             Expanded(
-              flex: 2,
+              flex: 2, // TODO: On smaller screens, this flex should be 1
               child: Text(widget.label),
             ),
             Expanded(
