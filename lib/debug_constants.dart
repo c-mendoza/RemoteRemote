@@ -17,10 +17,21 @@ var kXmlTestString = '''
 		</Send_OSC>
 	</App_Settings>
 	<A_Path type="ofPath" name="A Path">
-		<value>{ 0; 0, 0, 0; 0, 0, 0; 0, 0, 0; } { 3; 2550, 0, 0; 10, 20, 0; 300, 300, 0; } { 1; 2550, 1440, 0; 0, 0, 0; 0, 0, 0; } { 1; 0, 1440, 0; 0, 0, 0; 0, 0, 0; } { 7; 0, 0, 0; 0, 0, 0; 0, 0, 0; } </value>
+		<value>&lt;ofPath&gt;
+	&lt;points&gt;
+		&lt;point type="0" position="-67.33, -196, 0" cp1="0, 0, 0" cp2="0, 0, 0" /&gt;
+		&lt;point type="1" position="200, 30, 0" cp1="0, 0, 0" cp2="0, 0, 0" /&gt;
+		&lt;point type="1" position="300, 300, 0" cp1="0, 0, 0" cp2="0, 0, 0" /&gt;
+		&lt;point type="1" position="30, 200, 0" cp1="0, 0, 0" cp2="0, 0, 0" /&gt;
+		&lt;point type="7" position="0, 0, 0" cp1="0, 0, 0" cp2="0, 0, 0" /&gt;
+	&lt;/points&gt;
+	&lt;fill color="255, 0, 255, 255" isFilled="0" /&gt;
+	&lt;stroke color="255, 0, 228, 255" strokeWidth="2" /&gt;
+&lt;/ofPath&gt;
+</value>
 	</A_Path>
 	<A_Rectangle type="ofRectangle" name="A Rectangle">
-		<value>123, 229, 0, 300, 300</value>
+		<value>0, 0, 0, 300, 300</value>
 	</A_Rectangle>
 	<Circle_X type="double" name="Circle X">
 		<value>10</value>
@@ -40,7 +51,8 @@ var kXmlTestString = '''
 	<Circle_Color type="floatColor" name="Circle Color">
 		<value>1, 1, 1, 1</value>
 	</Circle_Color>
-</Model_Example>''';
+</Model_Example>
+''';
 
 var kXmlTestString2 = '''
 <Nervous_Structure type="group" name="Nervous Structure">
