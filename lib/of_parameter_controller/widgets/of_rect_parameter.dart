@@ -22,10 +22,14 @@ class OFRectParameterWidgetState extends State<OFRectParameterWidget> {
   @override
   void initState() {
     super.initState();
-    var vals = widget.param.value.split(',');
-    _anchorPoint = Offset(double.parse(vals[0]), double.parse(vals[1]));
-    width = double.parse(vals[3]);
-    height = double.parse(vals[4]);
+    deserialize();
+  }
+
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      deserialize();
+    });
   }
 
   @override
@@ -47,7 +51,7 @@ class OFRectParameterWidgetState extends State<OFRectParameterWidget> {
           ),
           NumberEditor(
             label: 'Width',
-            initialValue: width,
+            value: width,
             decimals: 0,
             showSlider: true,
             onChanged: (val) {
@@ -57,7 +61,7 @@ class OFRectParameterWidgetState extends State<OFRectParameterWidget> {
           ),
           NumberEditor(
             label: 'Height',
-            initialValue: height,
+            value: height,
             decimals: 0,
             showSlider: true,
             onChanged: (val) {
@@ -71,5 +75,12 @@ class OFRectParameterWidgetState extends State<OFRectParameterWidget> {
   void serialize() {
     widget.param.value =
         '${_anchorPoint.dx}, ${_anchorPoint.dy}, 0, $width, $height';
+  }
+
+  void deserialize() {
+    var vals = widget.param.value.split(',');
+    _anchorPoint = Offset(double.parse(vals[0]), double.parse(vals[1]));
+    width = double.parse(vals[3]);
+    height = double.parse(vals[4]);
   }
 }

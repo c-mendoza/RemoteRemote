@@ -82,3 +82,10 @@ abstract class OFBaseParameterWidget extends StatefulWidget {
 
   const OFBaseParameterWidget(this.param, {Key key}) : super(key: key);
 }
+
+class ServerMethod {
+  final String identifier;
+  final String uiName;
+
+  ServerMethod({@required this.identifier, @required this.uiName});
+}

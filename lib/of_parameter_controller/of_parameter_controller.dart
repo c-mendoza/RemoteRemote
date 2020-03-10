@@ -16,6 +16,7 @@ import 'package:osc_remote/of_parameter_controller/widgets/of_number_parameter.d
 import 'package:osc_remote/of_parameter_controller/widgets/of_path_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_rect_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_string_parameter.dart';
+import 'package:property_change_notifier/property_change_notifier.dart';
 import 'package:wifi/wifi.dart';
 import 'package:xml/xml.dart' as xml;
 
@@ -162,6 +163,17 @@ class OFParameterController with ChangeNotifier {
     }, (param) {
       return OFPathParameter(param);
     });
+
+//    addType('ofPolyline', ({value, type, name, path, min, max}) {
+//      return OFParameter<String>(
+//        value,
+//        name: name,
+//        type: type,
+//        path: path,
+//      );
+//    }, (param) {
+//      return OFPolylineParameter(param);
+//    });
   }
 
   ////////////////// DATA AND SERIALIZATION
@@ -181,24 +193,54 @@ class OFParameterController with ChangeNotifier {
   /// Parses the XML string and starts the deserialization. Returns false if either
   /// the parsing or the deserialization fails.
   bool parse(String xmlString) {
+    xml.XmlDocument document;
     try {
-      var document = xml.parse(xmlString);
-
-//    print(document.rootElement.findElements('children').first.root);
-      _group = deserializeGroup(document.rootElement);
-      if (_group == null) {
-        log.severe('Error parsing parameterGroup');
-        return false;
-      }
-      return true;
+      document = xml.parse(xmlString);
     } catch (e) {
       log.severe('Error parsing group xml.\n XML String:\n{$xmlString');
       return false;
     }
+
+    // If there is a previous group, dispose of all of the params
+    if (group != null) {
+//     print(group.children.first)
+      forEachParam(group, (OFParameter param) {
+        try {
+          param.dispose;  // <---- Whaaaaaaa??? Why doesn't dispose() work?
+        } catch(e) {
+          log.warning(e.toString());
+        }
+      });
+    }
+
+    xml.XmlElement paramRoot;
+    xml.XmlElement methodsRoot;
+
+    for (var el in document.firstChild.children) {
+      if (el.nodeType == xml.XmlNodeType.ELEMENT) {
+        if ((el as xml.XmlElement).name.toString() == "Parameters") {
+          paramRoot = el;
+        } else if ((el as xml.XmlElement).name.toString() == "Methods") {
+          methodsRoot = el;
+        }
+      }
+    }
+//    print(document.rootElement.findElements('children').first.root);
+    var bla = paramRoot.firstChild;
+    var groupRoot = paramRoot.descendants.firstWhere((xml.XmlNode element) => element.nodeType == xml.XmlNodeType.ELEMENT);
+    _group = _deserializeGroup(groupRoot);
+    if (_group == null) {
+      log.severe('Error parsing parameterGroup');
+      netController.status = NetStatus.ParserError;
+      return false;
+    }
+    netController.status = NetStatus.Connected;
+    notifyListeners();
+    return true;
   }
 
   /// Deserializes an ofParameterGroup
-  OFParameterGroup deserializeGroup(xml.XmlElement element) {
+  OFParameterGroup _deserializeGroup(xml.XmlElement element) {
     //Basic check, the root element should be type group
     var res = element.attributes
         .firstWhere((element) => element.name.toString() == 'type');
@@ -208,18 +250,28 @@ class OFParameterController with ChangeNotifier {
     }
 
     var group = OFParameterGroup(
-        name: element.getAttribute('name'), path: pathForElement(element));
+        name: element.getAttribute('name'), path: _pathForElement(element));
 
     element.children.forEach((xml.XmlNode element) {
       if (element.nodeType != xml.XmlNodeType.ELEMENT) return;
-      group.addChild(deserializeParameter(element));
+      group.addChild(_deserializeParameter(element));
     });
 
     return group;
   }
 
-  /// Deserializes a single parameter. Makes an exception for groups.
-  OFBaseParameter deserializeParameter(xml.XmlElement element) {
+  void forEachParam(OFParameterGroup group, Function f) {
+    for (var param in group.children) {
+      if (param.runtimeType != OFParameterGroup) {
+        f(param as OFParameter);
+      } else {
+        forEachParam(param, f);
+      }
+    }
+  }
+
+  /// Deserializes a single parameter. If a parameter is a group it calls [_deserializeGroup].
+  OFBaseParameter _deserializeParameter(xml.XmlElement element) {
     var typeString;
     try {
       typeString = element.getAttribute('type');
@@ -227,7 +279,7 @@ class OFParameterController with ChangeNotifier {
       return null;
     }
 
-    if (typeString == kGroupTypename) return deserializeGroup(element);
+    if (typeString == kGroupTypename) return _deserializeGroup(element);
 
     var value = element.findElements('value').first.text;
     var name = element.getAttribute('name');
@@ -247,19 +299,19 @@ class OFParameterController with ChangeNotifier {
           value: value,
           name: name,
           type: typeString,
-          path: pathForElement(element),
+          path: _pathForElement(element),
           min: min,
           max: max);
     } else {
       param = _typeDeserializers[kUnknownTypename](
           value: value,
           name: name,
-          path: pathForElement(element),
+          path: _pathForElement(element),
           type: kUnknownTypename);
     }
 
     param.addListener((changedParam) {
-      String valueString = serializeParameter(changedParam);
+      String valueString = _serializeParameter(changedParam);
 //      print(valueString);
       netController?.sendParameter(changedParam.path, valueString);
     });
@@ -267,12 +319,12 @@ class OFParameterController with ChangeNotifier {
     return param;
   }
 
-  String serializeParameter(OFParameter param) {
+  String _serializeParameter(OFParameter param) {
     return _typeSerializers[param.type](param);
   }
 
   /// Creates a calling path for a given element
-  String pathForElement(xml.XmlElement el) {
+  String _pathForElement(xml.XmlElement el) {
     var pathComponents = [];
     // Group hierarchy is in escaped mode in OF:
     pathComponents.add(el.name);
@@ -284,6 +336,10 @@ class OFParameterController with ChangeNotifier {
       }
     }
 
+    // The first two nodes of the xml tree don't have anything to do with OFParameters,
+    // so we remove them:
+    pathComponents.removeLast();
+    pathComponents.removeLast();
     String path = '';
     for (var component in pathComponents.reversed) {
       path = '$path/$component';
@@ -298,6 +354,14 @@ class OFParameterController with ChangeNotifier {
     } else {
       return _typeBuilders[kUnknownTypename](param);
     }
+  }
+
+  void save() {
+    netController.callSave();
+  }
+
+  void revert() async {
+    netController.callRevert();
   }
 
   static String serializeColor(Color c) {

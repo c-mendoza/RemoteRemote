@@ -31,6 +31,13 @@ class _PointEditorState extends State<PointEditor>
   }
 
   @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      _point = widget.point;
+    });
+  }
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -51,7 +58,7 @@ class _PointEditorState extends State<PointEditor>
               flex: 1,
               child: NumberEditor(
                 label: 'x:',
-                initialValue: _point.dx,
+                value: _point.dx,
                 showSlider: false,
                 decimals: 0,
                 labelFlex: 1,
@@ -70,7 +77,7 @@ class _PointEditorState extends State<PointEditor>
               flex: 1,
               child: NumberEditor(
                 label: 'y:',
-                initialValue: _point.dy,
+                value: _point.dy,
                 showSlider: false,
                 decimals: 0,
                 labelFlex: 1,

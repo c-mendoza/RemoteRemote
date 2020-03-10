@@ -14,6 +14,7 @@ import 'package:wakelock/wakelock.dart';
 import 'package:wifi/wifi.dart';
 
 import 'debug_constants.dart';
+import 'of_parameter_controller/types.dart';
 import 'of_parameter_controller/widgets/of_group_view.dart';
 
 void main() {
@@ -73,72 +74,79 @@ class StartScreenState extends State<StartScreen> {
     final netController =
         Provider.of<NetworkingController>(context, listen: false);
     controller.text = netController.hostAddress;
-    return FocusWatcher(
-      child: Scaffold(
-        body: Container(
-          constraints: BoxConstraints.expand(),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        "Remote Host",
-                        textAlign: TextAlign.left,
-                      ),
-                      TextField(
-//                      onChanged: (String s) {
-//                        netController.hostAddress = s;
-//                      },
-                        onEditingComplete: () {
-                          netController.hostAddress = controller.text;
-                        },
-                        controller: controller,
-                      ),
-                    ],
-                  ),
-                  FlatButton(
-                      child: Text("Connect"),
-                      onPressed: () {
-                        // Connect to OSC
-                        netController.connect(controller.text, paramController,
-                            onSuccess: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => OFParameterGroupView(
-                                      paramController.group)));
-                        });
-                      }),
-                  FlatButton(
-                      child: Text("Debug Connect"),
-                      onPressed: () {
-                        paramController.parse(kXmlTestString);
+    return Scaffold(
+      body: Container(
+        constraints: BoxConstraints.expand(),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      "Remote Host",
+                      textAlign: TextAlign.left,
+                    ),
+                    TextField(
+                      onEditingComplete: () {
+                        netController.hostAddress = controller.text;
+                      },
+                      controller: controller,
+                    ),
+                  ],
+                ),
+                FlatButton(
+                    child: Text("Connect"),
+                    onPressed: () {
+                      // Connect to OSC
+                      netController.connect(controller.text, paramController,
+                          onSuccess: () {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => OFParameterGroupView(
-                                    paramController.group)));
-                      }),
-                  Consumer<NetworkingController>(
-                    builder: (context, nc, _) {
-                      return StatusDisplay(
-                        status: nc.status,
-                      );
-                    },
-                  ),
-                ],
-              ),
+                                builder: (context) => Launcher(rootGroup: paramController.group)));
+                      });
+                    }),
+                FlatButton(
+                    child: Text("Debug Connect"),
+                    onPressed: () {
+                      paramController.parse(kXmlTestString);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  Launcher(rootGroup: paramController.group)));
+                    }),
+                Consumer<NetworkingController>(
+                  builder: (context, nc, _) {
+                    return StatusDisplay(
+                      status: nc.status,
+                    );
+                  },
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+class Launcher extends StatelessWidget {
+  final OFParameterGroup rootGroup;
+
+  const Launcher({Key key, this.rootGroup}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<OFParameterController>(builder: (context, paramController, __) {
+      return OFParameterGroupView(paramController.group);
+    });
   }
 }
 
@@ -164,7 +172,7 @@ class StatusDisplay extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        OFParameterGroupView(paramController.group)));
+                      Launcher(rootGroup: paramController.group)));
           },
         );
 

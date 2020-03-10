@@ -15,7 +15,7 @@ class OFNumberParameterWidget extends StatelessWidget {
     // TODO: implement build
     return NumberEditor(
       label: param.name,
-      initialValue: param.value,
+      value: param.value,
       min: param.min,
       max: param.max,
       decimals: param.type == kIntTypename ? 0 : kMaxDecimals,

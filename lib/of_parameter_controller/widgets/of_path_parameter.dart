@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:osc_remote/of_parameter_controller/widgets/bool_editor.dart';
+import 'package:osc_remote/of_parameter_controller/widgets/color_editor.dart';
+import 'package:osc_remote/of_parameter_controller/widgets/number_editor.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/point_editor.dart';
 import 'package:page_indicator/page_indicator.dart';
 import 'package:xml/xml.dart' as xml;
@@ -7,129 +10,152 @@ import 'package:xml/xml.dart' as xml;
 import '../../constants.dart';
 import '../of_parameter_controller.dart';
 import '../types.dart';
+import 'EditorAppBar.dart';
 
 Logger pathLogger = Logger('PathParameter');
 
-class OFPathParameter extends StatelessWidget {
+class OFPathParameter extends StatefulWidget {
   final OFParameter<String> param;
 
   const OFPathParameter(this.param, {Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return Scaffold(
-            body: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: PathEditor(param),
-            ),
-            appBar: AppBar(title: Text(param.name)),
-          );
-        }));
-      },
-      child: Container(
-        padding: kListItemPadding,
-        child: Row(
-          children: <Widget>[
-            Expanded(
-                flex: 6,
-                child: Text(
-                  param.name,
-                  style: kLabelStyle,
-                )),
-            Expanded(
-                flex: 2,
-                child: Text(
-                  'Edit path',
-                  style: kActionLabelStyle,
-                  textAlign: TextAlign.right,
-                )),
-            Expanded(
-                child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Icon(
-                      Icons.navigate_next,
-                      size: kLabelStyle.fontSize * 1.5,
-                    )))
-          ],
-        ),
-      ),
-    );
-  }
+  _OFPathParameterState createState() => _OFPathParameterState();
 }
 
-class PathEditor extends StatefulWidget {
-  final OFParameter<String> param;
-
-  PathEditor(this.param);
-
-  @override
-  _PathEditorState createState() => _PathEditorState();
-}
-
-class _PathEditorState extends State<PathEditor> {
+class _OFPathParameterState extends State<OFPathParameter> {
   List<PathPoint> pathPoints = [];
   Color pathFillColor;
   bool pathIsFilled;
   Color pathStrokeColor;
   double pathStrokeWidth;
 
-  PageController _pageController;
-
   @override
   void initState() {
     super.initState();
     deserialize();
-    _pageController = PageController();
+  }
+
+//
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      deserialize();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Container(
+      padding: kListItemPadding,
       child: Column(
-        mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          Expanded(
-            child: PageView(
-              children: buildPointEditors(pathPoints),
-              controller: _pageController,
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Scaffold(
+                  body: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
+                    child: PathEditor(
+                      pathPoints: pathPoints,
+                      onChange: (pathPointList) {
+                        setState(() {
+                          pathPoints =
+                              pathPointList; // I think this is redundant
+                          serialize();
+                        });
+                      },
+                    ),
+                  ),
+                  appBar: EditorAppBar.build(context, widget.param.name),
+                );
+              }));
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15.0),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                      flex: 6,
+                      child: Text(
+                        widget.param.name,
+                        style: kLabelStyle,
+                      )),
+                  Expanded(
+                      flex: 3,
+                      child: Text(
+                        'Edit points',
+                        style: kActionLabelStyle,
+                        textAlign: TextAlign.right,
+                      )),
+                  Expanded(
+                      child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Icon(
+                            Icons.navigate_next,
+                            size: kLabelStyle.fontSize * 1.5,
+                          )))
+                ],
+              ),
             ),
           ),
-          Align(
-              alignment: Alignment.center,
-              child: Text('Swipe for additional path points')),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Column(
+              children: <Widget>[
+                NumberEditor(
+                  label: 'Stroke Width',
+                  value: pathStrokeWidth,
+                  min: 0,
+                  max: 10,
+                  decimals: 2,
+                  onChanged: (val) {
+                    setState(() {
+                      pathStrokeWidth = val.toDouble();
+                      serialize();
+                    });
+                  },
+                ),
+                ColorEditor(
+                  color: pathStrokeColor,
+                  label: 'Stroke Color',
+                  onChanged: (c) {
+                    setState(() {
+                      pathStrokeColor = c;
+                      serialize();
+                    });
+                  },
+                ),
+                BoolEditor(
+                  pathIsFilled,
+                  label: 'Fill Path',
+                  onChanged: (val) {
+                    setState(() {
+                      pathIsFilled = val;
+                      serialize();
+                    });
+                  },
+                ),
+                ColorEditor(
+                  color: pathFillColor,
+                  label: 'Fill Color',
+                  onChanged: (c) {
+                    setState(() {
+                      pathFillColor = c;
+                      serialize();
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
-//    return ListView(
-//      children: buildPoints(points),
-//      shrinkWrap: true,
-//    );
   }
 
-  List<Widget> buildPointEditors(List<PathPoint> points) {
-    var list = <Widget>[];
-
-    for (var i = 0; i < points.length; i++) {
-      var point = points[i];
-      if (point.type == PathPointType.close) continue;
-      list.add(PathPointEditor(
-        pathPoint: point,
-        onChange: (pathPoint) {
-          setState(() {
-            points[pathPoint.index] = pathPoint;
-            serialize();
-          });
-        },
-      ));
-    }
-
-    return list;
-  }
-
-  //TODO!!
   void serialize() {
     var doc = xml.XmlDocument();
     var builder = xml.XmlBuilder();
@@ -145,11 +171,13 @@ class _PathEditorState extends State<PathEditor> {
         }
       });
       builder.element('fill', nest: () {
-        builder.attribute('color', OFParameterController.serializeColor(pathFillColor));
+        builder.attribute(
+            'color', OFParameterController.serializeColor(pathFillColor));
         builder.attribute('isFilled', pathIsFilled ? '1' : '0');
       });
       builder.element('stroke', nest: () {
-        builder.attribute('color', OFParameterController.serializeColor(pathStrokeColor));
+        builder.attribute(
+            'color', OFParameterController.serializeColor(pathStrokeColor));
         builder.attribute('strokeWidth', pathStrokeWidth.toString());
       });
     });
@@ -167,10 +195,10 @@ class _PathEditorState extends State<PathEditor> {
 
   void deserialize() {
 //    var commands = widget.param.value.split('{');
+    pathPoints.clear();
     xml.XmlDocument doc;
     try {
       doc = xml.parse(widget.param.value);
-
     } catch (e) {
       pathLogger.severe(
           'Error parsing path xml for the following string:\n ${widget.param.value}');
@@ -184,7 +212,6 @@ class _PathEditorState extends State<PathEditor> {
     int index = 0;
     // TODO: more error checking in path deserialization
     for (var el in pointElements) {
-
       var commandTypeIndex = int.parse(el.getAttribute('type'));
       var commandType = typeForInt(commandTypeIndex);
       var pathPoint = PathPoint(index++, commandType);
@@ -215,11 +242,13 @@ class _PathEditorState extends State<PathEditor> {
     }
 
     var strokeXml = doc.rootElement.findElements('stroke').first;
-    pathStrokeColor = OFParameterController.deserializeColor(strokeXml.getAttribute('color'));
+    pathStrokeColor =
+        OFParameterController.deserializeColor(strokeXml.getAttribute('color'));
     pathStrokeWidth = double.parse(strokeXml.getAttribute('strokeWidth'));
 
     var fillXml = doc.rootElement.findElements('fill').first;
-    pathFillColor = OFParameterController.deserializeColor(fillXml.getAttribute('color'));
+    pathFillColor =
+        OFParameterController.deserializeColor(fillXml.getAttribute('color'));
     pathIsFilled = fillXml.getAttribute('isFilled') == '1';
   }
 
@@ -257,6 +286,70 @@ class _PathEditorState extends State<PathEditor> {
     // Ignore z
 
     return Offset(x, y);
+  }
+}
+
+class PathEditor extends StatefulWidget {
+  final List<PathPoint> pathPoints;
+  final ValueChanged<List<PathPoint>> onChange;
+
+  const PathEditor({Key key, this.pathPoints, this.onChange}) : super(key: key);
+
+  @override
+  _PathEditorState createState() => _PathEditorState();
+}
+
+class _PathEditorState extends State<PathEditor> {
+  PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          Expanded(
+            child: PageView(
+              children: buildPointEditors(),
+              controller: _pageController,
+            ),
+          ),
+          Align(
+              alignment: Alignment.center,
+              child: Text('Swipe for additional path points')),
+        ],
+      ),
+    );
+//    return ListView(
+//      children: buildPoints(points),
+//      shrinkWrap: true,
+//    );
+  }
+
+  List<Widget> buildPointEditors() {
+    var list = <Widget>[];
+
+    for (var i = 0; i < widget.pathPoints.length; i++) {
+      var pathPoint = widget.pathPoints[i];
+      if (pathPoint.type == PathPointType.close) continue;
+      list.add(PathPointEditor(
+        pathPoint: pathPoint,
+        onChange: (pathPoint) {
+          setState(() {
+            widget.pathPoints[pathPoint.index] = pathPoint;
+            widget.onChange(widget.pathPoints);
+          });
+        },
+      ));
+    }
+
+    return list;
   }
 }
 

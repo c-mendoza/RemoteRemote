@@ -28,7 +28,7 @@ enum NetStatus {
 class NetworkingController with ChangeNotifier {
   // Networking
 
-  String _hostAddress = "192.168.1.8";
+  String _hostAddress = "192.168.1.5";
   String _localIpAddress;
   OSCSocket _osc;
   int _outPort = 12000;
@@ -91,6 +91,11 @@ class NetworkingController with ChangeNotifier {
     return true;
   }
 
+  ////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////
+
+  /// Handle responses from the server
   void oscListener(OSCMessage m) {
     String response = m.address;
 
@@ -110,12 +115,21 @@ class NetworkingController with ChangeNotifier {
         var res = _parameterController.parse(m.arguments[0]);
         if(res) {
           status = NetStatus.Connected;
-          _onConnectionSuccess();
+          _onConnectionSuccess?.call();
+          _onConnectionSuccess = null;
         } else {
           status = NetStatus.ParserError;
         }
+        break;
+      case 'revert':
+        if (m.arguments[0] == 'OK') {
+          _callMethod('getModel', [localIpAddress]);
+        }
     }
   }
+
+  ////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////
 
   Future<void> connect(String host, OFParameterController controller, {Function onSuccess}) async {
     _hostAddress = host;
@@ -147,6 +161,14 @@ class NetworkingController with ChangeNotifier {
 
   Future<void> sendParameter(String path, String value) {
     return _callMethod('set', [path, value]);
+  }
+
+  Future<void> callSave() {
+    return _callMethod('save', ['']);
+  }
+
+  Future<void> callRevert() {
+    return _callMethod('revert', ['']);
   }
 
   String get hostAddress => _hostAddress;
@@ -184,4 +206,5 @@ class NetworkingController with ChangeNotifier {
     _status = value;
     notifyListeners();
   }
+
 }

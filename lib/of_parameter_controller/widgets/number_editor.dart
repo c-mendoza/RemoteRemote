@@ -13,7 +13,7 @@ class NumberEditor extends StatefulWidget {
   final int decimals;
   final bool showSlider;
 
-  final num initialValue;
+  final num value;
   final num min;
   final num max;
   final int labelFlex;
@@ -29,7 +29,7 @@ class NumberEditor extends StatefulWidget {
       this.decimals = 3,
       this.min = 0,
       this.max = 0,
-      this.initialValue = 0,
+      this.value = 0,
       this.label,
       this.showSlider = true,
       this.labelFlex = 3,
@@ -52,7 +52,7 @@ class NumberEditorState extends State<NumberEditor> {
   @override
   void initState() {
     super.initState();
-    value = widget.initialValue.toDouble();
+    value = widget.value.toDouble();
     _textController = TextEditingController(text: formatNumber(value));
     focusNode = FocusNode();
     focusNode.addListener(() {
@@ -79,8 +79,8 @@ class NumberEditorState extends State<NumberEditor> {
     // get connected with the textController.
     // By using [didUpdateWidget] we can get those two variables in sync.
 
-    value = widget.initialValue;
-    _textController.text = formatNumber(widget.initialValue);
+    value = widget.value.toDouble();
+    _textController.text = formatNumber(widget.value);
   }
 
   @override
