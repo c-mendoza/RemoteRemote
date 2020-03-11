@@ -144,9 +144,9 @@ class Launcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<OFParameterController>(builder: (context, paramController, __) {
-      return OFParameterGroupView(paramController.group);
-    });
+//    return Consumer<OFParameterController>(builder: (context, paramController, __) {
+    return OFParameterGroupView('/');
+//    });
   }
 }
 

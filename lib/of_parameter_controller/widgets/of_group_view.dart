@@ -12,80 +12,84 @@ import 'of_group_stub.dart';
 //final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 class OFParameterGroupView extends StatelessWidget {
-  final OFParameterGroup group;
+  final String groupPath;
 
 //  final OFParameterController controller;
 
-  const OFParameterGroupView(this.group);
+  const OFParameterGroupView(this.groupPath);
 
   @override
   Widget build(BuildContext context) {
-    var paramController = Provider.of<OFParameterController>(context, listen: false);
-    return Scaffold(
-      endDrawer: Container(
-        width: 200,
-        color: Theme.of(context).canvasColor,
-        child: ListView(
-          children: <Widget>[
-            SizedBox(
-              height: 200,
-            ),
-            FlatButton(
-              child: Text(
-                'Save',
-                style: kButtonStyle,
+    return Consumer<OFParameterController>(
+        builder: (context, paramController, __) {
+      var group = paramController.getGroupForPath(groupPath);
+      return Scaffold(
+        endDrawer: Container(
+          width: 200,
+          color: Theme.of(context).canvasColor,
+          child: ListView(
+            children: <Widget>[
+              SizedBox(
+                height: 200,
               ),
-              onPressed: () {
-                paramController.save();
-              },
-            ),
-            FlatButton(
-              child: Text(
-                'Revert',
-                style: kButtonStyle,
+              FlatButton(
+                child: Text(
+                  'Save',
+                  style: kButtonStyle,
+                ),
+                onPressed: () {
+                  paramController.save();
+                },
               ),
-              onPressed: () {
-                paramController.revert();
-                Navigator.pop(context);
+              FlatButton(
+                child: Text(
+                  'Revert',
+                  style: kButtonStyle,
+                ),
+                onPressed: () {
+                  paramController.revert();
+                  Navigator.pop(context);
 //                    Navigator.popUntil(context, (route) {
 //                      if(route.isFirst) return true;
 //                      return false;
 //                    });
-                // pop all of the navigators? The widgets are not
-                // reflecting the new values because their states are out
-                // of sync with the values
-              },
-            ),
-            FlatButton(
-              child: Text(
-                'Add Multiline',
-                style: kButtonStyle,
+                  // pop all of the navigators? The widgets are not
+                  // reflecting the new values because their states are out
+                  // of sync with the values
+                },
               ),
-              onPressed: () {},
-            ),
-            FlatButton(
-              child: Text(
-                'Add Mask',
-                style: kButtonStyle,
+              FlatButton(
+                child: Text(
+                  'Add Multiline',
+                  style: kButtonStyle,
+                ),
+                onPressed: () {},
               ),
-              onPressed: () {},
-            ),
-          ],
-        ),
-      ),
-      body: FocusWatcher(
-        child: Container(
-          child: ListView(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            children: buildGroupChildren(context),
+              FlatButton(
+                child: Text(
+                  'Add Mask',
+                  style: kButtonStyle,
+                ),
+                onPressed: () {},
+              ),
+            ],
           ),
         ),
-      ),
-      appBar: EditorAppBar.build(context, group.name),
-    );
+        body: FocusWatcher(
+          child: Container(
+            child: ListView(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              children: buildGroupChildren(context, group),
+            ),
+          ),
+        ),
+        appBar: EditorAppBar.build(context, group.name),
+      );
+    });
   }
 
-  List<Widget> buildGroupChildren(BuildContext context) {
+  List<Widget> buildGroupChildren(
+      BuildContext context, OFParameterGroup group) {
     var children = <Widget>[];
 
     for (var child in group.children) {
@@ -96,18 +100,19 @@ class OFParameterGroupView extends StatelessWidget {
   }
 
   Widget buildParameter(OFBaseParameter param, BuildContext context) {
-    if (param.type == kGroupTypename) return OFParameterGroupStub(param);
+    if (param.type == kGroupTypename) return OFParameterGroupStub(param.path);
 
     Widget paramWidget =
-        Provider.of<OFParameterController>(context, listen: false).getBuilder(param);
+    Provider.of<OFParameterController>(context, listen: false)
+      .getBuilder(param);
 
     return Container(
       child: paramWidget,
       padding: EdgeInsets.symmetric(vertical: 5.0),
       decoration: BoxDecoration(
-          border: Border(
-        top: BorderSide(width: 0.5),
-      )),
+        border: Border(
+          top: BorderSide(width: 0.5),
+        )),
     );
   }
 }

@@ -270,6 +270,17 @@ class OFParameterController with ChangeNotifier {
     }
   }
 
+  void forEachGroup(OFParameterGroup group, Function f) {
+    for (var param in group.children) {
+      if (param.runtimeType == OFParameterGroup) {
+        f(param as OFParameterGroup);
+        forEachGroup(param, f);
+      }
+    }
+  }
+
+  OFBaseParameter parameterForPath(String path) {}
+
   /// Deserializes a single parameter. If a parameter is a group it calls [_deserializeGroup].
   OFBaseParameter _deserializeParameter(xml.XmlElement element) {
     var typeString;
@@ -393,7 +404,7 @@ class OFParameterController with ChangeNotifier {
     }
 
     return Color.fromARGB(
-        colorChannels[3], colorChannels[0], colorChannels[1], colorChannels[2]);
+      colorChannels[3], colorChannels[0], colorChannels[1], colorChannels[2]);
   }
 
   // GETTERS AND SETTERS
@@ -402,6 +413,17 @@ class OFParameterController with ChangeNotifier {
   /////////////////////////////////////////
 
   OFParameterGroup getParameterGroup() => _group;
+
+  OFParameterGroup getGroupForPath(String groupPath) {
+    if (groupPath == '/') return _group;
+    var foundGroup;
+
+    forEachGroup(_group, (OFParameterGroup pg) {
+      if (pg.path == groupPath) foundGroup = pg;
+    });
+
+    return foundGroup;
+  }
 }
 
 class ParamContainer extends StatelessWidget {

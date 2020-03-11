@@ -7,7 +7,8 @@ class BoolEditor extends StatefulWidget {
   final String label;
   final ValueChanged<bool> onChanged;
 
-  const BoolEditor(this.value, {this.label, Key key, this.onChanged}) : super(key: key);
+  const BoolEditor(this.value, {this.label, Key key, this.onChanged})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => BoolEditorState();
@@ -15,10 +16,18 @@ class BoolEditor extends StatefulWidget {
 
 class BoolEditorState extends State<BoolEditor> {
   bool value;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    value = widget.value;
+  }
+
+  @override
+  void didUpdateWidget(BoolEditor oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
     value = widget.value;
   }
 
@@ -37,8 +46,8 @@ class BoolEditorState extends State<BoolEditor> {
                   widget.label,
                   textAlign: TextAlign.left,
                   style: kLabelStyle,
-                  ),
                 ),
+              ),
               Expanded(
                 flex: 1,
                 child: Switch(
@@ -49,11 +58,11 @@ class BoolEditorState extends State<BoolEditor> {
                       widget.onChanged(val);
                     });
                   },
-                  ))
+                ))
             ],
-            ),
           ),
+        ),
       ],
-      );
+    );
   }
 }
