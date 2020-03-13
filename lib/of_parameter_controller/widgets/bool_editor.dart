@@ -19,14 +19,12 @@ class BoolEditorState extends State<BoolEditor> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     value = widget.value;
   }
 
   @override
   void didUpdateWidget(BoolEditor oldWidget) {
-    // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
     value = widget.value;
   }

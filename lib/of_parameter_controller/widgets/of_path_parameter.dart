@@ -271,7 +271,7 @@ class _OFPathParameterState extends State<OFPathParameter> {
     bool error = false;
     if (stringCoords.length != 3) {
       pathLogger.severe(
-          'Error deserializing point. Did not find three coordinates. Tried to parse the following:\n$component');
+          'Error deserializing point. Did not find three coordinates values. Tried to parse the following:\n$component');
       return Offset(0, 0);
     }
 
@@ -326,10 +326,6 @@ class _PathEditorState extends State<PathEditor> {
         ],
       ),
     );
-//    return ListView(
-//      children: buildPoints(points),
-//      shrinkWrap: true,
-//    );
   }
 
   List<Widget> buildPointEditors() {
@@ -337,7 +333,8 @@ class _PathEditorState extends State<PathEditor> {
 
     for (var i = 0; i < widget.pathPoints.length; i++) {
       var pathPoint = widget.pathPoints[i];
-      if (pathPoint.type == PathPointType.close) continue;
+      if (pathPoint.type == PathPointType.close)
+        break; // We don't handle sub paths
       list.add(PathPointEditor(
         pathPoint: pathPoint,
         onChange: (pathPoint) {
@@ -346,28 +343,121 @@ class _PathEditorState extends State<PathEditor> {
             widget.onChange(widget.pathPoints);
           });
         },
-      ));
+        onPointAction: (PointActionType action) {
+          switch (action) {
+            case PointActionType.addPoint:
+              addPathPointAfterIndex(pathPoint.index);
+              break;
+            case PointActionType.convertPoint:
+              convertPathPoint(pathPoint);
+              break;
+            case PointActionType.deletePoint:
+              deletePathPoint(pathPoint);
+              break;
+          }
+        }));
+    }
+    return list;
+  }
+
+  void addPathPointAfterIndex(int index) {
+    var pathPoints = widget.pathPoints;
+    // If there is a point after this one, which means that there are at least two points and that we are
+    // not looking at the end of the path
+    if (index + 1 < widget.pathPoints.length) {
+      if (widget.pathPoints[index + 1].type != PathPointType.close) {
+        var newPoint = PathPoint(index + 1, PathPointType.lineTo);
+        newPoint.position = Offset.lerp(widget.pathPoints[index + 1].position,
+          widget.pathPoints[index].position, 0.5);
+        widget.pathPoints.insert(index + 1, newPoint);
+      } else {
+        var newPoint = PathPoint(index + 1, PathPointType.lineTo);
+        newPoint.position = Offset.lerp(widget.pathPoints[index].position,
+          widget.pathPoints[0].position, 0.5);
+        widget.pathPoints.insert(index + 1, newPoint);
+      }
+    } else {
+      // We are adding to the end of the path
+      // If that path is closed and we are adding at the end, we need to add the new point
+      // prior to the last PathPoint
+      if (widget.pathPoints[index].type == PathPointType.close) {
+        if (index > 2) {
+          // If there are at least three points, lerp between the last non-close
+          // point and the first point. Insert point at index-1 to keep the close
+          // point at the end.
+          var newPoint = PathPoint(index - 1, PathPointType.lineTo);
+          newPoint.position = Offset.lerp(widget.pathPoints[index - 1].position,
+            widget.pathPoints[0].position, 0.5);
+          widget.pathPoints.insert(index - 1, newPoint);
+        } else {
+          var newPoint = PathPoint(index - 1, PathPointType.lineTo);
+          newPoint.position = widget.pathPoints[0].position + Offset(20, 20);
+          widget.pathPoints.insert(index - 1, newPoint);
+        }
+      }
     }
 
-    return list;
+    // Reindex the points:
+    _reindexPoints();
+
+    setState(() {
+      widget.onChange(widget.pathPoints);
+    });
+  }
+
+  void _reindexPoints() {
+    for (int i = 0; i < widget.pathPoints.length; i++) {
+      widget.pathPoints[i].index = i;
+    }
+  }
+
+  void convertPathPoint(PathPoint pathPoint) {
+//    if (pathPoint.type == PathPointType.lineTo) {
+//      pathPoint.type = PathPointType.curveTo;
+//    } else if (pathPoint.type == PathPointType.curveTo) {
+//      pathPoint.type = PathPointType.bezierTo;
+//    } else if (pathPoint.type == PathPointType.bezierTo) {
+//      pathPoint.type = PathPointType.lineTo;
+//    }
+    setState(() {
+      widget.onChange(widget.pathPoints);
+    });
+  }
+
+  void deletePathPoint(PathPoint pathPoint) {
+    // Basic rules: If we delete the first point, the second point must change to moveTo
+    // Don't delete close points
+    // Don't delete all points?
+    if (widget.pathPoints.length < 2) {
+      pathLogger.warning('Can\'t delete last point');
+      return;
+    }
+
+    if (pathPoint.index == 0 && pathPoint.type == PathPointType.moveTo) {
+      widget.pathPoints.removeAt(0);
+      widget.pathPoints[0].type = PathPointType.moveTo;
+    } else {
+      widget.pathPoints.removeAt(pathPoint.index);
+    }
+
+    _reindexPoints();
+    setState(() {
+      widget.onChange(widget.pathPoints);
+    });
   }
 }
 
 class PathPointEditor extends StatelessWidget {
   final PathPoint pathPoint;
   final ValueChanged<PathPoint> onChange;
+  final ValueChanged<PointActionType> onPointAction;
 
-  const PathPointEditor({Key key, this.pathPoint, this.onChange})
-      : super(key: key);
+  const PathPointEditor(
+    {Key key, this.pathPoint, this.onChange, this.onPointAction})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-//
-//    return PointEditor(
-//      point: pathPoint.position,
-//      label: 'Position',
-//      onChange: (offset) {},
-//    );
     return LayoutBuilder(
       builder: (context, constraints) {
         return SingleChildScrollView(
@@ -393,44 +483,37 @@ class PathPointEditor extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                      flex: 2,
-                      child: Align(
-                          alignment: Alignment.center,
-                          child: buildPointEditorOption())),
-                  Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Align(
                       alignment: Alignment.center,
-                      child: PopupMenuButton(
-                        offset: Offset(-10, -150),
-                        child: Text(
-                          'Point Actions',
-                          style: kButtonStyle,
+                      child: buildPointEditorOption())),
+                  Expanded(
+                    flex: 1,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        FlatButton(
+                          child: Text(
+                            'Add point',
+                            style: kButtonStyle,
+                          ),
+                          onPressed: () {
+                            onPointAction(PointActionType.addPoint);
+                          },
                         ),
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<int>>[
-                          const PopupMenuItem<int>(
-                            value: 0,
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text('Add Point'),
-                            ),
+                        FlatButton(
+                          child: Text(
+                            'Delete point',
+                            style: kButtonStyle,
                           ),
-                          const PopupMenuItem<int>(
-                            value: 0,
-                            child: Text('Convert Point'),
-                          ),
-                          const PopupMenuItem<int>(
-                            value: 0,
-                            child: Text('Delete Point'),
-                          ),
-                        ],
-                      ),
+                          onPressed: () {
+                            onPointAction(PointActionType.deletePoint);
+                          },
+                        ),
+                      ],
                     ),
                   ),
-//        SizedBox(
-//          height: 40,
-//          ),
                 ],
               ),
             ),
@@ -441,6 +524,72 @@ class PathPointEditor extends StatelessWidget {
   }
 
   Widget buildPointEditorOption() {
+    var columnChildren = <Widget>[];
+
+    columnChildren.add(Row(
+      children: <Widget>[
+        Expanded(
+          flex: 1,
+          child: Text('Point type'),
+        ),
+        Expanded(
+          flex: 1,
+          child: pathPoint.type != PathPointType.moveTo
+            ? PopupMenuButton(
+            onSelected: (sel) {
+              switch (sel) {
+                case 0: //Add
+                  _setPointType(pathPoint, PathPointType.lineTo);
+                  break;
+                case 1: // Convert
+                  _setPointType(pathPoint, PathPointType.curveTo);
+                  break;
+                case 2:
+                  _setPointType(pathPoint, PathPointType.bezierTo);
+                  break;
+              }
+            },
+//            offset: Offset(-10, -150),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(kBorderRadius))
+            ),
+            child: Text(
+              _pointTypeString(pathPoint),
+              style: kButtonStyle,
+            ),
+            itemBuilder: (BuildContext context) =>
+            <PopupMenuEntry<int>>[
+              const PopupMenuItem<int>(
+                value: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text('Line'),
+                ),
+              ),
+              const PopupMenuItem<int>(
+                value: 1,
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text('Curve'),
+                ),
+              ),
+              const PopupMenuItem<int>(
+                value: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text('Bezier'),
+                ),
+              ),
+            ],
+          )
+            : Text(
+            _pointTypeString(pathPoint),
+            style: kLabelStyle,
+          ),
+        )
+      ],
+    ));
+
     var positionPointEditor = PointEditor(
       point: pathPoint.position,
       label: 'Position',
@@ -470,23 +619,26 @@ class PathPointEditor extends StatelessWidget {
           onChange(pathPoint);
         },
       ));
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            height: 300,
-            child: PageIndicatorContainer(
-              child: PageView(children: pointEditors),
-              length: pointEditors.length,
-              indicatorColor: Colors.grey[200],
-            ),
+
+      columnChildren.add(
+        Container(
+          height: 300,
+          child: PageIndicatorContainer(
+            child: PageView(children: pointEditors),
+            length: pointEditors.length,
+            indicatorColor: Colors.grey[200],
           ),
-          Text('Swipe for control points'),
-        ],
+        ),
       );
+      columnChildren.add(Text('Swipe for control points'));
     } else {
-      return Container(height: 300, child: positionPointEditor);
+      columnChildren.add(Container(height: 300, child: positionPointEditor));
     }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: columnChildren,
+    );
   }
 
   Widget buildConvertOption() {
@@ -534,6 +686,47 @@ class PathPointEditor extends StatelessWidget {
     }
     return Container();
   }
+
+  String _pointTypeString(PathPoint pathPoint) {
+    switch (pathPoint.type) {
+      case PathPointType.moveTo:
+        return 'Move';
+        break;
+      case PathPointType.lineTo:
+        return 'Line';
+        break;
+      case PathPointType.curveTo:
+        return 'Curve';
+        break;
+      case PathPointType.bezierTo:
+        return 'Bezier';
+        break;
+      case PathPointType.quadBezierTo:
+        return 'Quad Bezier';
+        break;
+      case PathPointType.arc:
+        return 'Arc';
+        break;
+      case PathPointType.arcNegative:
+        return 'Arc Negative';
+        break;
+      case PathPointType.close:
+        return 'Close';
+        break;
+    }
+    return 'SLAAAY QUEEN';
+  }
+
+  void _setPointType(PathPoint pathPoint, PathPointType type) {
+    pathPoint.type = type;
+    onPointAction(PointActionType.convertPoint);
+  }
+}
+
+enum PointActionType {
+  addPoint,
+  convertPoint,
+  deletePoint,
 }
 
 enum PathPointType {
@@ -551,8 +744,8 @@ class PathPoint {
   Offset position;
   Offset cp1;
   Offset cp2;
-  final PathPointType type;
-  final int index;
+  PathPointType type;
+  int index;
 
   PathPoint(this.index, this.type);
 }

@@ -85,17 +85,18 @@ class StartScreenState extends State<StartScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Text(
                       "Remote Host",
-                      textAlign: TextAlign.left,
+                      textAlign: TextAlign.center,
                     ),
                     TextField(
                       onEditingComplete: () {
                         netController.hostAddress = controller.text;
                       },
                       controller: controller,
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
