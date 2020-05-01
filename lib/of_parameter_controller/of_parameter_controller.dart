@@ -1,17 +1,14 @@
 library of_parameter_controller;
 
-import 'dart:io';
+import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_focus_watcher/flutter_focus_watcher.dart';
 import 'package:logging/logging.dart';
-import 'package:osc/osc.dart';
 import 'package:osc_remote/of_parameter_controller/networking_controller.dart';
 import 'package:osc_remote/of_parameter_controller/types.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_boolean_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_color_parameter.dart';
-import 'package:osc_remote/of_parameter_controller/widgets/of_group_stub.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_number_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_path_parameter.dart';
 import 'package:osc_remote/of_parameter_controller/widgets/of_rect_parameter.dart';
@@ -52,6 +49,12 @@ class OFParameterController with ChangeNotifier {
   Map<String, ParameterBuilderFunction> _typeBuilders = {};
   Map<String, DeserializingFunction> _typeDeserializers = {};
   Map<String, SerializingFunction> _typeSerializers = {};
+
+  Map<String, String> _serverMethods = {};
+
+  UnmodifiableMapView<String, String> getServerMethods() {
+    return UnmodifiableMapView(_serverMethods);
+  }
 
   OFParameterGroup get group => _group;
 
@@ -206,8 +209,8 @@ class OFParameterController with ChangeNotifier {
 //     print(group.children.first)
       forEachParam(group, (OFParameter param) {
         try {
-          param.dispose;  // <---- Whaaaaaaa??? Why doesn't dispose() work?
-        } catch(e) {
+          param.dispose; // <---- Whaaaaaaa??? Why doesn't dispose() work?
+        } catch (e) {
           log.warning(e.toString());
         }
       });
@@ -227,13 +230,32 @@ class OFParameterController with ChangeNotifier {
     }
 //    print(document.rootElement.findElements('children').first.root);
     var bla = paramRoot.firstChild;
-    var groupRoot = paramRoot.descendants.firstWhere((xml.XmlNode element) => element.nodeType == xml.XmlNodeType.ELEMENT);
+    var groupRoot = paramRoot.descendants.firstWhere(
+        (xml.XmlNode element) => element.nodeType == xml.XmlNodeType.ELEMENT);
     _group = _deserializeGroup(groupRoot);
     if (_group == null) {
       log.severe('Error parsing parameterGroup');
       netController.status = NetStatus.ParserError;
       return false;
     }
+
+    for (var el in methodsRoot.children) {
+      if (el.nodeType == xml.XmlNodeType.ELEMENT) {
+        var methodName = (el as xml.XmlElement).name.toString();
+        var uiName = (el as xml.XmlElement).getAttribute('uiName');
+        // ignore 'default' methods, those are handled separately
+        if (methodName.contains('revert') ||
+            methodName.contains('save') ||
+            methodName.contains('set') ||
+            methodName.contains('connect') ||
+            methodName.contains('getModel')) {
+          // ignore
+        } else {
+          _serverMethods[methodName] = uiName;
+        }
+      }
+    }
+
     netController.status = NetStatus.Connected;
     notifyListeners();
     return true;
@@ -404,7 +426,7 @@ class OFParameterController with ChangeNotifier {
     }
 
     return Color.fromARGB(
-      colorChannels[3], colorChannels[0], colorChannels[1], colorChannels[2]);
+        colorChannels[3], colorChannels[0], colorChannels[1], colorChannels[2]);
   }
 
   // GETTERS AND SETTERS

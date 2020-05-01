@@ -7,8 +7,8 @@ import 'package:osc_remote/of_parameter_controller/of_parameter_controller.dart'
 import 'package:osc_remote/of_parameter_controller/types.dart';
 import 'package:wifi/wifi.dart';
 
-const String kApiRootString = '/mtafMethod';
-const String kApiResponseString = '/mtafResponse';
+const String kApiRootString = '/ofxpsMethod';
+const String kApiResponseString = '/ofxpsResponse';
 
 class NetReply {
   final String methodName;
@@ -28,7 +28,7 @@ enum NetStatus {
 class NetworkingController with ChangeNotifier {
   // Networking
 
-  String _hostAddress = "192.168.1.5";
+  String _hostAddress = "192.168.1.8";
   String _localIpAddress;
   OSCSocket _osc;
   int _outPort = 12000;
@@ -109,7 +109,7 @@ class NetworkingController with ChangeNotifier {
 
     switch (pathComponents[2]) {
       case 'connect':
-        _callMethod('getModel', [localIpAddress]);
+        callMethod('getModel', [localIpAddress]);
         break;
       case 'getModel':
         var res = _parameterController.parse(m.arguments[0]);
@@ -123,7 +123,7 @@ class NetworkingController with ChangeNotifier {
         break;
       case 'revert':
         if (m.arguments[0] == 'OK') {
-          _callMethod('getModel', [localIpAddress]);
+          callMethod('getModel', [localIpAddress]);
         }
     }
   }
@@ -138,10 +138,10 @@ class NetworkingController with ChangeNotifier {
     _parameterController.netController = this;
 
     await _setupOsc();
-    _callMethod('connect', [localIpAddress]);
+    callMethod('connect', [localIpAddress]);
   }
 
-  Future<void> _callMethod(String methodName, [List arguments]) async {
+  Future<void> callMethod(String methodName, [List arguments]) async {
     if (arguments == null) arguments = [0];
     var m = OSCMessage('$kApiRootString/$methodName', arguments: arguments);
     status = NetStatus.Waiting;
@@ -160,15 +160,15 @@ class NetworkingController with ChangeNotifier {
 //  }
 
   Future<void> sendParameter(String path, String value) {
-    return _callMethod('set', [path, value]);
+    return callMethod('set', [path, value]);
   }
 
   Future<void> callSave() {
-    return _callMethod('save', ['']);
+    return callMethod('save', ['']);
   }
 
   Future<void> callRevert() {
-    return _callMethod('revert', ['']);
+    return callMethod('revert', ['']);
   }
 
   String get hostAddress => _hostAddress;
