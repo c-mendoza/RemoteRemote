@@ -1,57 +1,55 @@
 
 var kXmlTestString = '''
-<Model_Example type="group" name="Model Example">
-	<App_Settings type="group" name="App Settings">
-		<Output_Width type="int" name="Output Width">
-			<value>1920</value>
-			<min>640</min>
-			<max>6000</max>
-		</Output_Width>
-		<Output_Height type="int" name="Output Height">
-			<value>1080</value>
-			<min>480</min>
-			<max>6000</max>
-		</Output_Height>
-		<Send_OSC type="boolean" name="Send OSC">
-			<value>0</value>
-		</Send_OSC>
-	</App_Settings>
-	<A_Path type="ofPath" name="A Path">
-		<value>&lt;ofPath&gt;
-	&lt;points&gt;
-		&lt;point type="0" position="-67.33, -196, 0" cp1="0, 0, 0" cp2="0, 0, 0" /&gt;
-		&lt;point type="1" position="200, 30, 0" cp1="0, 0, 0" cp2="0, 0, 0" /&gt;
-		&lt;point type="1" position="300, 300, 0" cp1="0, 0, 0" cp2="0, 0, 0" /&gt;
-		&lt;point type="1" position="30, 200, 0" cp1="0, 0, 0" cp2="0, 0, 0" /&gt;
-		&lt;point type="7" position="0, 0, 0" cp1="0, 0, 0" cp2="0, 0, 0" /&gt;
-	&lt;/points&gt;
-	&lt;fill color="255, 0, 255, 255" isFilled="0" /&gt;
-	&lt;stroke color="255, 0, 228, 255" strokeWidth="2" /&gt;
-&lt;/ofPath&gt;
-</value>
-	</A_Path>
-	<A_Rectangle type="ofRectangle" name="A Rectangle">
-		<value>0, 0, 0, 300, 300</value>
-	</A_Rectangle>
-	<Circle_X type="double" name="Circle X">
-		<value>10</value>
-		<min>0</min>
-		<max>1000</max>
-	</Circle_X>
-	<Circle_Y type="double" name="Circle Y">
-		<value>10</value>
-		<min>0</min>
-		<max>1000</max>
-	</Circle_Y>
-	<Circle_Radius type="double" name="Circle Radius">
-		<value>50</value>
-		<min>0</min>
-		<max>500</max>
-	</Circle_Radius>
-	<Circle_Color type="floatColor" name="Circle Color">
-		<value>1, 1, 1, 1</value>
-	</Circle_Color>
-</Model_Example>
+<ParameterServer>
+	<Parameters>
+		<Model_Example type="group" name="Model Example">
+			<App_Settings type="group" name="App Settings">
+				<Output_Width type="int" name="Output Width">
+					<value>1920</value>
+					<min>640</min>
+					<max>6000</max>
+				</Output_Width>
+				<Output_Height type="int" name="Output Height">
+					<value>1080</value>
+					<min>480</min>
+					<max>6000</max>
+				</Output_Height>
+				<Send_OSC type="boolean" name="Send OSC">
+					<value>0</value>
+				</Send_OSC>
+			</App_Settings>
+			<A_Rectangle type="ofRectangle" name="A Rectangle">
+				<value>370, 458, 0, 132, 120</value>
+			</A_Rectangle>
+			<Circle_X type="double" name="Circle X">
+				<value>263.804</value>
+				<min>0</min>
+				<max>1000</max>
+			</Circle_X>
+			<Circle_Y type="double" name="Circle Y">
+				<value>10</value>
+				<min>0</min>
+				<max>1000</max>
+			</Circle_Y>
+			<Circle_Radius type="double" name="Circle Radius">
+				<value>96.1145</value>
+				<min>0</min>
+				<max>500</max>
+			</Circle_Radius>
+			<Circle_Color type="floatColor" name="Circle Color">
+				<value>0.65098, 0.552941, 0.952941, 1</value>
+			</Circle_Color>
+		</Model_Example>
+	</Parameters>
+	<Methods>
+		<foo uiName="Foo" />
+		<revert uiName="Revert" />
+		<save uiName="Save" />
+		<set uiName="Set parameter" />
+		<connect uiName="Connect" />
+		<getModel uiName="Get model" />
+	</Methods>
+</ParameterServer>
 ''';
 
 var kXmlTestString2 = '''

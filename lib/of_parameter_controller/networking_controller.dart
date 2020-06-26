@@ -135,7 +135,7 @@ class NetworkingController with ChangeNotifier {
     _hostAddress = host;
     _parameterController = controller;
     _onConnectionSuccess = onSuccess;
-    _parameterController.netController = this;
+//    _parameterController.netController = this;
 
     await _setupOsc();
     callMethod('connect', [localIpAddress]);

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:osc_remote/constants.dart';
 import 'package:osc_remote/of_parameter_controller/of_parameter_controller.dart';
-import 'package:osc_remote/of_parameter_controller/types.dart';
 import 'package:provider/provider.dart';
 
 import 'of_group_view.dart';

@@ -43,7 +43,7 @@ final SerializingFunction defaultSerializer = (param) {
 
 class OFParameterController with ChangeNotifier {
   OFParameterGroup _group;
-  NetworkingController netController;
+  final NetworkingController netController;
   Logger log = Logger('OFParameterController');
 
   Map<String, ParameterBuilderFunction> _typeBuilders = {};
@@ -58,7 +58,7 @@ class OFParameterController with ChangeNotifier {
 
   OFParameterGroup get group => _group;
 
-  OFParameterController() {
+  OFParameterController(this.netController) {
     addType(kStringTypename, ({value, type, name, path, min, max}) {
       return OFParameter<String>(value, name: name, path: path, type: type);
     }, (param) => OFStringParameter(param));

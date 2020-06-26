@@ -23,9 +23,10 @@ dependencies:
   flutter_colorpicker:
   logging: ^0.11.4
   provider: ^4.0.4
-  flutter_spinkit: ^2.1.0
+  flutter_spinkit: ^4.0.0
   property_change_notifier: ^0.2.0
   page_indicator: ^0.3.0
+  bottom_navy_bar: ^5.4.0
 
 dev_dependencies:
   flutter_test:

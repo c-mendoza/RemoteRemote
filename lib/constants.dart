@@ -32,3 +32,23 @@ const kPointEditorIconSize = 80.0;
 const kPointEditorPadding = 70.0;
 
 const kListItemPadding  = EdgeInsets.fromLTRB(0, 10, 0, 10);
+
+final TextStyle kTitleTextStyle = TextStyle(
+  color: Colors.black,
+  fontSize: 25,
+  fontFamily: "Roboto",
+  letterSpacing: 8,
+  fontWeight: FontWeight.bold,
+  height: 1,
+  decoration: TextDecoration.none,
+);
+
+final TextStyle kSubTitleTextStyle = TextStyle(
+  color: Colors.black,
+  fontSize: 25,
+  fontFamily: "Roboto",
+  letterSpacing: 1,
+  fontWeight: FontWeight.bold,
+  height: 1,
+  decoration: TextDecoration.none,
+);
