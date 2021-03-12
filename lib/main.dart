@@ -7,6 +7,8 @@ import 'package:osc_remote/of_parameter_controller/widgets/of_group_view.dart';
 import 'package:osc_remote/pages/net_status_page.dart';
 import 'package:osc_remote/pages/parameter_controller_page.dart';
 import 'package:provider/provider.dart';
+import 'constants.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   Logger.root.level = Level.ALL; // defaults to Level.INFO
@@ -15,9 +17,14 @@ void main() {
     print('${record.level.name}: ${record.message}');
   });
 
+  // TestWidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
+
   var netController = NetworkingController();
   var paramController = OFParameterController(netController);
   var appModel = AppModel();
+
+  netController.hostAddress = kDebugIp;
 
   return runApp(ParameterEditor(paramController, netController, appModel));
 }
@@ -52,7 +59,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   var _selectedIndex = 0;
   AppModel appModel;
-  var _pageController;
+  PageController _pageController;
 
   @override
   void initState() {
@@ -61,7 +68,6 @@ class _HomePageState extends State<HomePage> {
     appModel.addListener(onModelChange);
     _pageController = PageController();
   }
-
 
   @override
   void dispose() {
@@ -72,9 +78,12 @@ class _HomePageState extends State<HomePage> {
   void onModelChange() {
     if (_selectedIndex == 0) {
       if (appModel.parametersReady) {
-        setState(() {
-          _selectedIndex = 1;
-        });
+        if (appModel.connectPressed) {
+          setState(() {
+            _selectedIndex = 1;
+            _pageController.animateToPage(_selectedIndex, duration: Duration(milliseconds: 300), curve: Curves.ease);
+          });
+        }
       }
     }
   }
@@ -82,7 +91,22 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _getPage(),
+      body: SizedBox.expand(
+        child: PageView(
+          physics: NeverScrollableScrollPhysics(),
+          children: <Widget>[
+            NetStatusPage(),
+            ParameterControllerPage(),
+            Container(),
+          ],
+          controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
@@ -123,6 +147,7 @@ class _HomePageState extends State<HomePage> {
     if (value != _selectedIndex) {
       setState(() {
         _selectedIndex = value;
+        _pageController.jumpToPage(_selectedIndex);
       });
     }
   }

@@ -361,7 +361,6 @@ class _PathEditorState extends State<PathEditor> {
   }
 
   void addPathPointAfterIndex(int index) {
-    var pathPoints = widget.pathPoints;
     // If there is a point after this one, which means that there are at least two points and that we are
     // not looking at the end of the path
     if (index + 1 < widget.pathPoints.length) {

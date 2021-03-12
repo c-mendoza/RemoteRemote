@@ -35,7 +35,9 @@ class _OFParameterGroupStubState extends State<OFParameterGroupStub> {
         });
         Navigator.push(
             context,
-            MaterialPageRoute(
+            MaterialPageRoute(settings: RouteSettings(
+              name: widget.groupPath,
+            ),
                 builder: (context) => OFParameterGroupView(widget.groupPath)));
       },
       child: Container(

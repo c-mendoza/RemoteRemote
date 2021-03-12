@@ -22,7 +22,8 @@ const String kIntTypename = 'int';
 const String kFloatTypename = 'float';
 const String kDoubleTypename = 'double';
 const String kBoolTypename = 'boolean';
-const String kColorTypename = 'floatColor';
+const String kFloatColorTypename = 'floatColor';
+const String kColorTypename = 'color';
 const String kStringTypename = 'string';
 const String kUnknownTypename = 'unknown';
 
@@ -111,7 +112,7 @@ class OFParameterController with ChangeNotifier {
         });
 
     addType(
-        kColorTypename,
+        kFloatColorTypename,
         ({value, type, name, path, min, max}) {
           var colorChannels = [];
           value.split(',').forEach((String s) {
@@ -144,6 +145,41 @@ class OFParameterController with ChangeNotifier {
           var alpha = c.alpha.toDouble() / 255.0;
           return '$red, $green, $blue, $alpha';
         });
+
+    addType(
+      kColorTypename,
+        ({value, type, name, path, min, max}) {
+        var colorChannels = [];
+        value.split(',').forEach((String s) {
+          var v = int.tryParse(s.trim());
+          if (v == null) {
+            v = 0;
+            log.severe('Error parsing color channel');
+          }
+          colorChannels.add(v);
+        });
+
+        if (colorChannels.length == 3) {
+          colorChannels.add(255); // Add alpha
+        }
+
+        if (colorChannels.length != 4) {
+          log.severe(
+            'In parsing ofColor: Incorrect number of color channels');
+          return _typeDeserializers[kStringTypename](
+            value: value, type: kUnknownTypename, name: name, path: path);
+        }
+
+
+        var color = Color.fromARGB(colorChannels[3], colorChannels[0],
+          colorChannels[1], colorChannels[2]);
+        return OFParameter<Color>(color, name: name, type: type, path: path);
+      },
+        (param) => OFColorParameterWidget(param),
+        (param) {
+        Color c = param.value as Color;
+        return '${c.red}, ${c.green}, ${c.blue}, ${c.alpha}';
+      });
 
     addType('ofRectangle', ({value, type, name, path, min, max}) {
       return OFParameter<String>(
@@ -325,6 +361,9 @@ class OFParameterController with ChangeNotifier {
       el = element.findElements('max');
       if (el.isNotEmpty) max = el.first.text;
     } catch (e) {}
+
+    if (min == '') min = '0';
+    if (max == '') max = '0';
 
     var param;
     if (_typeDeserializers.containsKey(typeString)) {

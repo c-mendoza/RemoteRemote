@@ -28,7 +28,7 @@ enum NetStatus {
 class NetworkingController with ChangeNotifier {
   // Networking
 
-  String _hostAddress = "192.168.1.8";
+  String _hostAddress = "172.27.224.45";
   String _localIpAddress;
   OSCSocket _osc;
   int _outPort = 12000;

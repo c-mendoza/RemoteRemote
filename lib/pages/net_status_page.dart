@@ -92,13 +92,15 @@ class StartScreenState extends State<StartScreen> {
 //                          MaterialPageRoute(
 //                            builder: (context) => Launcher(rootGroup: paramController.group)));
 //                      });
+                        appModel.connectPressed = true;
                         appModel.parametersReady = true;
                       });
                   }),
                 StyledButton(
                   text: "Debug Connect",
                   onPressed: () {
-                    paramController.parse(kXmlTestString);
+                    paramController.parse(kXmlTestString2);
+                    appModel.connectPressed = true;
                     appModel.parametersReady = true;
                   }),
                 Consumer<NetworkingController>(

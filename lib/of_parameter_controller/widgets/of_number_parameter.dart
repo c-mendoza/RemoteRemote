@@ -12,7 +12,6 @@ class OFNumberParameterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return NumberEditor(
       label: param.name,
       value: param.value,

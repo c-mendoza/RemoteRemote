@@ -58,53 +58,55 @@ class _ColorEditorState extends State<ColorEditor> {
                 onTap: () {
                   showDialog(
                     context: context,
-                    child: AlertDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(kBorderRadius),
-                        side: BorderSide(
-                          color: Colors.grey.shade700,
-                          width: 0,
-                          style: BorderStyle.none,
+                    builder: (context) {
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(kBorderRadius),
+                          side: BorderSide(
+                            color: Colors.grey.shade700,
+                            width: 0,
+                            style: BorderStyle.none,
+                          ),
                         ),
-                      ),
-                      title: Text('${widget.label}'),
-                      content: SingleChildScrollView(
-                        child: ColorPicker(
+                        title: Text('${widget.label}'),
+                        content: SingleChildScrollView(
+                          child: ColorPicker(
 //                              paletteType: PaletteType.rgb,
-                          pickerColor: widget.color,
-                          onColorChanged: (c) {
-                            setState(() {
-                              widget.onChanged(c);
-                            });
-                          },
-                          showLabel: true,
-                          pickerAreaHeightPercent: 0.8,
+                            pickerColor: widget.color,
+                            onColorChanged: (c) {
+                              setState(() {
+                                widget.onChanged(c);
+                              });
+                            },
+                            showLabel: true,
+                            pickerAreaHeightPercent: 0.8,
+                          ),
+                          // Use Material color picker:
+                          //
+                          // child: MaterialPicker(
+                          //   pickerColor: pickerColor,
+                          //   onColorChanged: changeColor,
+                          //   showLabel: true, // only on portrait mode
+                          // ),
+                          //
+                          // Use Block color picker:
+                          //
+                          // child: BlockPicker(
+                          //   pickerColor: currentColor,
+                          //   onColorChanged: changeColor,
+                          // ),
                         ),
-                        // Use Material color picker:
-                        //
-                        // child: MaterialPicker(
-                        //   pickerColor: pickerColor,
-                        //   onColorChanged: changeColor,
-                        //   showLabel: true, // only on portrait mode
-                        // ),
-                        //
-                        // Use Block color picker:
-                        //
-                        // child: BlockPicker(
-                        //   pickerColor: currentColor,
-                        //   onColorChanged: changeColor,
-                        // ),
-                      ),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: const Text('Done'),
-                          onPressed: () {
-                            setState(() {});
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    ),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: const Text('Done'),
+                            onPressed: () {
+                              setState(() {});
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
                   );
                 },
               ))

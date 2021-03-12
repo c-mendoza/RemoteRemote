@@ -4,7 +4,7 @@ import 'package:property_change_notifier/property_change_notifier.dart';
 
 import 'of_parameter_controller.dart';
 
-class OFBaseParameter {
+class OFBaseParameter extends PropertyChangeNotifier {
   final String name;
   final String path;
   final String type;
@@ -16,7 +16,7 @@ class OFBaseParameter {
 //typedef String SerializingFunction<T>(T value);
 
 // ignore: mixin_inherits_from_not_object
-class OFParameter<T> extends OFBaseParameter with PropertyChangeNotifier {
+class OFParameter<T> extends OFBaseParameter  {
   T _value;
   T _min;
   T _max;

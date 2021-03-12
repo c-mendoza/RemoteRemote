@@ -52,3 +52,7 @@ final TextStyle kSubTitleTextStyle = TextStyle(
   height: 1,
   decoration: TextDecoration.none,
 );
+
+final GlobalKey<NavigatorState> kParamNavigatorKey = GlobalKey<NavigatorState>();
+
+final String kDebugIp = '192.168.1.13';
