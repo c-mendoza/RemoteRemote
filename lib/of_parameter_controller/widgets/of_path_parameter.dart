@@ -472,7 +472,7 @@ class PathPointEditor extends StatelessWidget {
                     child: Container(
 //                      color: Colors.orange,
                       child: Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: Alignment.center,
                         child: Text(
                           'Point ${pathPoint.index}',
                           style: Theme.of(context).textTheme.headline,
@@ -481,11 +481,6 @@ class PathPointEditor extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Expanded(
-                    flex: 2,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: buildPointEditorOption())),
                   Expanded(
                     flex: 1,
                     child: Row(
@@ -513,6 +508,12 @@ class PathPointEditor extends StatelessWidget {
                       ],
                     ),
                   ),
+                  Expanded(
+                    flex: 4,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: buildPointEditorOption())),
+
                 ],
               ),
             ),
@@ -631,7 +632,7 @@ class PathPointEditor extends StatelessWidget {
       );
       columnChildren.add(Text('Swipe for control points'));
     } else {
-      columnChildren.add(Container(height: 300, child: positionPointEditor));
+      columnChildren.add(Container(child: positionPointEditor));
     }
 
     return Column(

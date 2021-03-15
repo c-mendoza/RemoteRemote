@@ -100,89 +100,87 @@ class _PointEditorState extends State<PointEditor>
   }
 
   Widget buildButtonStack(BuildContext context) {
-    return Center(
-      child: Stack(children: <Widget>[
-        Positioned(
-          bottom: kPointEditorPadSize.height + kPointEditorPadding,
-          left: kPointEditorPadding +
-              kPointEditorPadSize.width / 2 -
-              kPointEditorIconSize / 2,
-          child: ArrowButton(
-            direction: Direction.up,
-            onTap: () {
-              setState(() {
-                _point = _point.translate(0, -1);
-                widget.onChange(_point);
-              });
-            },
-            iconSize: kPointEditorIconSize,
-          ),
+    return Stack(children: <Widget>[
+      Positioned(
+        bottom: kPointEditorPadSize.height + kPointEditorPadding,
+        left: kPointEditorPadding +
+            kPointEditorPadSize.width / 2 -
+            kPointEditorIconSize / 2,
+        child: ArrowButton(
+          direction: Direction.up,
+          onTap: () {
+            setState(() {
+              _point = _point.translate(0, -1);
+              widget.onChange(_point);
+            });
+          },
+          iconSize: kPointEditorIconSize,
         ),
-        Positioned(
-          top: kPointEditorPadding +
-              kPointEditorPadSize.height / 2 -
-              kPointEditorIconSize / 2,
-          left: kPointEditorPadding * 1 + kPointEditorPadSize.width,
-          child: ArrowButton(
-            direction: Direction.right,
-            onTap: () {
-              setState(() {
-                _point = _point.translate(1, 0);
-                widget.onChange(_point);
-              });
-            },
-            iconSize: kPointEditorIconSize,
-          ),
+      ),
+      Positioned(
+        top: kPointEditorPadding +
+            kPointEditorPadSize.height / 2 -
+            kPointEditorIconSize / 2,
+        left: kPointEditorPadding * 1 + kPointEditorPadSize.width,
+        child: ArrowButton(
+          direction: Direction.right,
+          onTap: () {
+            setState(() {
+              _point = _point.translate(1, 0);
+              widget.onChange(_point);
+            });
+          },
+          iconSize: kPointEditorIconSize,
         ),
-        Positioned(
-          top: kPointEditorPadSize.height + kPointEditorPadding,
-          left: kPointEditorPadding +
-              kPointEditorPadSize.width / 2 -
-              kPointEditorIconSize / 2,
-          child: ArrowButton(
-            direction: Direction.down,
-            onTap: () {
-              setState(() {
-                _point = _point.translate(0, 1);
-                widget.onChange(_point);
-              });
-            },
-            iconSize: kPointEditorIconSize,
-          ),
+      ),
+      Positioned(
+        top: kPointEditorPadSize.height + kPointEditorPadding,
+        left: kPointEditorPadding +
+            kPointEditorPadSize.width / 2 -
+            kPointEditorIconSize / 2,
+        child: ArrowButton(
+          direction: Direction.down,
+          onTap: () {
+            setState(() {
+              _point = _point.translate(0, 1);
+              widget.onChange(_point);
+            });
+          },
+          iconSize: kPointEditorIconSize,
         ),
-        Positioned(
-          top: kPointEditorPadding +
-              kPointEditorPadSize.height / 2 -
-              kPointEditorIconSize / 2,
-          right: kPointEditorPadSize.width + kPointEditorPadding,
-          child: ArrowButton(
-            direction: Direction.left,
-            onTap: () {
-              setState(() {
-                _point = _point.translate(-1, 0);
-                widget.onChange(_point);
-              });
-            },
-            iconSize: kPointEditorIconSize,
-          ),
+      ),
+      Positioned(
+        top: kPointEditorPadding +
+            kPointEditorPadSize.height / 2 -
+            kPointEditorIconSize / 2,
+        right: kPointEditorPadSize.width + kPointEditorPadding,
+        child: ArrowButton(
+          direction: Direction.left,
+          onTap: () {
+            setState(() {
+              _point = _point.translate(-1, 0);
+              widget.onChange(_point);
+            });
+          },
+          iconSize: kPointEditorIconSize,
         ),
-        Container(
-          padding: EdgeInsets.all(kPointEditorPadding),
-          child: DragPad(
-            width: kPointEditorPadSize.width,
-            height: kPointEditorPadSize.height,
-            color: Theme.of(context).accentColor,
-            onDrag: (offset) {
-              setState(() {
-                offset *= 2.0;
-                _point += offset;
-                widget.onChange(_point);
-              });
-            },
-          ),
+      ),
+      Container(
+        padding: EdgeInsets.all(kPointEditorPadding),
+        child: DragPad(
+          width: kPointEditorPadSize.width,
+          height: kPointEditorPadSize.height,
+          color: Theme.of(context).accentColor,
+          onDrag: (offset) {
+            setState(() {
+              offset *= 2.0;
+              _point += offset;
+              widget.onChange(_point);
+            });
+          },
         ),
-      ]),
-    );
+      ),
+    ]);
   }
 }
 
