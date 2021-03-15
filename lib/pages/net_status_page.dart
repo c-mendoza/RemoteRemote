@@ -47,9 +47,9 @@ class StartScreenState extends State<StartScreen> {
   @override
   Widget build(BuildContext context) {
     final paramController =
-    Provider.of<OFParameterController>(context, listen: false);
+        Provider.of<OFParameterController>(context, listen: false);
     final netController =
-    Provider.of<NetworkingController>(context, listen: false);
+        Provider.of<NetworkingController>(context, listen: false);
     controller.text = netController.hostAddress;
     final appModel = Provider.of<AppModel>(context, listen: false);
     return Scaffold(
@@ -80,27 +80,24 @@ class StartScreenState extends State<StartScreen> {
                   ],
                 ),
                 StyledButton(
-                  text: "Connect",
-                  onPressed: () {
-                    // Connect to OSC
-                    netController.connect(controller.text, paramController,
-                      onSuccess: () {
-//                        Navigator.push(
-//                          context,
-//                          MaterialPageRoute(
-//                            builder: (context) => Launcher(rootGroup: paramController.group)));
-//                      });
+                    text: "Connect",
+                    onPressed: () {
+                      appModel.parametersReady = false;
+                      appModel.connectPressed = false;
+                      // Connect to OSC
+                      netController.connect(controller.text, paramController,
+                          onSuccess: () {
                         appModel.connectPressed = true;
                         appModel.parametersReady = true;
                       });
-                  }),
-                StyledButton(
-                  text: "Debug Connect",
-                  onPressed: () {
-                    paramController.parse(kXmlTestString2);
-                    appModel.connectPressed = true;
-                    appModel.parametersReady = true;
-                  }),
+                    }),
+                if (Foundation.kDebugMode)StyledButton(
+                    text: "Debug Connect",
+                    onPressed: () {
+                      paramController.parse(kXmlTestString2);
+                      appModel.connectPressed = true;
+                      appModel.parametersReady = true;
+                    }),
                 Consumer<NetworkingController>(
                   builder: (context, nc, _) {
                     return StatusDisplay(
@@ -117,19 +114,6 @@ class StartScreenState extends State<StartScreen> {
   }
 }
 
-class Launcher extends StatelessWidget {
-  final OFParameterGroup rootGroup;
-
-  const Launcher({Key key, this.rootGroup}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-//    return Consumer<OFParameterController>(builder: (context, paramController, __) {
-    return OFParameterGroupView('/');
-//    });
-  }
-}
-
 class StatusDisplay extends StatelessWidget {
   final NetStatus status;
 
@@ -137,25 +121,19 @@ class StatusDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: statusBuilder(context),
+      ),
+    );
+  }
+
+  Widget statusBuilder(BuildContext context) {
     switch (status) {
       case NetStatus.Connected:
-        final paramController =
-        Provider.of<OFParameterController>(context, listen: false);
-//        Future.microtask(() => Navigator.push(
-//            context,
-//            MaterialPageRoute(
-//                builder: (context) => OFParameterGroupView(paramController.group))));
-        return FlatButton(
-          child: Text('Do it'),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                  Launcher(rootGroup: paramController.group)));
-          },
-        );
-
+        return Text('Connected');
+        break;
       case NetStatus.Disconnected:
         return Text('Disconnected');
         break;
@@ -164,15 +142,17 @@ class StatusDisplay extends StatelessWidget {
         break;
       case NetStatus.Waiting:
         return SpinKitDualRing(
-          color: Theme.of(context).primaryColor,
+          color: Theme.of(context).accentColor,
           size: 28,
         );
         break;
       case NetStatus.ParserError:
         return Text('Parser Error');
         break;
+      default:
+        return Text('Disconnected');
+        break;
     }
-    return Container();
   }
 }
 
