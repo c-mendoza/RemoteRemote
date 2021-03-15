@@ -98,7 +98,8 @@ class _HomePageState extends State<HomePage> {
         if (appModel.connectPressed) {
           setState(() {
             _selectedIndex = 1;
-            _pageController.animateToPage(_selectedIndex, duration: Duration(milliseconds: 300), curve: Curves.ease);
+            _pageController.animateToPage(_selectedIndex,
+                duration: Duration(milliseconds: 300), curve: Curves.ease);
           });
         }
       }
@@ -114,7 +115,7 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             NetStatusPage(),
             ParameterControllerPage(),
-            Container(),
+            AboutPage(),
           ],
           controller: _pageController,
           onPageChanged: (index) {
@@ -145,19 +146,6 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _selectedIndex,
       ),
     );
-  }
-
-  Widget _getPage() {
-    switch (_selectedIndex) {
-      case 0:
-        return NetStatusPage();
-      case 1:
-        return OFParameterGroupView('/');
-      case 2:
-        return Container();
-    }
-
-    return Container();
   }
 
   void _onItemTapped(int value) {
