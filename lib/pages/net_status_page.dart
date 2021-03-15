@@ -1,17 +1,15 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:osc_remote/app_model.dart';
-import 'package:osc_remote/of_parameter_controller/networking_controller.dart';
-import 'package:osc_remote/of_parameter_controller/of_parameter_controller.dart';
-import 'package:osc_remote/widgets/styled_button.dart';
+import 'package:remote_remote/app_model.dart';
+import 'package:remote_remote/of_parameter_controller/networking_controller.dart';
+import 'package:remote_remote/of_parameter_controller/of_parameter_controller.dart';
+import 'package:remote_remote/widgets/styled_button.dart';
 import 'package:provider/provider.dart';
-import 'package:osc_remote/debug_constants.dart';
-import 'package:osc_remote/of_parameter_controller/types.dart';
-import 'package:osc_remote/of_parameter_controller/widgets/of_group_view.dart';
-import 'package:osc_remote/constants.dart';
+import 'package:remote_remote/of_parameter_controller/types.dart';
+import 'package:remote_remote/of_parameter_controller/widgets/of_group_view.dart';
+import 'package:remote_remote/constants.dart';
 import 'package:wakelock/wakelock.dart';
+import 'package:flutter/foundation.dart' as Foundation;
 
 class NetStatusPage extends StatelessWidget {
   @override

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:osc_remote/constants.dart';
-import 'package:osc_remote/of_parameter_controller/types.dart';
+import 'package:remote_remote/constants.dart';
+import 'package:remote_remote/of_parameter_controller/types.dart';
 
 import '../of_parameter_controller.dart';
 import 'number_editor.dart';

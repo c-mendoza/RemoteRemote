@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:osc_remote/constants.dart';
+import 'package:remote_remote/constants.dart';
 
 class StyledButton extends StatelessWidget {
   final String text;

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_focus_watcher/flutter_focus_watcher.dart';
-import 'package:osc_remote/constants.dart';
-import 'package:osc_remote/of_parameter_controller/networking_controller.dart';
-import 'package:osc_remote/of_parameter_controller/widgets/EditorAppBar.dart';
-import 'package:osc_remote/of_parameter_controller/widgets/server_methods_view.dart';
+import 'package:remote_remote/constants.dart';
+import 'package:remote_remote/of_parameter_controller/networking_controller.dart';
+import 'package:remote_remote/of_parameter_controller/widgets/EditorAppBar.dart';
+import 'package:remote_remote/of_parameter_controller/widgets/server_methods_view.dart';
 import 'package:provider/provider.dart';
 
 import '../of_parameter_controller.dart';

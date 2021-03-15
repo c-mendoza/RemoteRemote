@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:osc_remote/of_parameter_controller/widgets/of_group_view.dart';
+import 'package:remote_remote/of_parameter_controller/widgets/of_group_view.dart';
 
 
 class EditorAppBar {

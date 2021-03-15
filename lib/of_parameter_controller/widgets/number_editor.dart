@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:osc_remote/of_parameter_controller/widgets/point_editor.dart';
+import 'package:remote_remote/of_parameter_controller/widgets/point_editor.dart';
 
 import '../../constants.dart';
 

@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:osc/osc.dart';
-import 'package:osc_remote/of_parameter_controller/of_parameter_controller.dart';
-import 'package:osc_remote/of_parameter_controller/types.dart';
+import 'package:remote_remote/of_parameter_controller/of_parameter_controller.dart';
+import 'package:remote_remote/of_parameter_controller/types.dart';
 import 'package:wifi/wifi.dart';
 
-const String kApiRootString = '/ofxpsMethod';
-const String kApiResponseString = '/ofxpsResponse';
+const String kApiRootString = '/ofxrpMethod';
+const String kApiResponseString = '/ofxrpResponse';
 
 class NetReply {
   final String methodName;

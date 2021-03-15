@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-import 'package:osc_remote/of_parameter_controller/widgets/bool_editor.dart';
-import 'package:osc_remote/of_parameter_controller/widgets/color_editor.dart';
-import 'package:osc_remote/of_parameter_controller/widgets/number_editor.dart';
-import 'package:osc_remote/of_parameter_controller/widgets/point_editor.dart';
+import 'package:remote_remote/of_parameter_controller/widgets/bool_editor.dart';
+import 'package:remote_remote/of_parameter_controller/widgets/color_editor.dart';
+import 'package:remote_remote/of_parameter_controller/widgets/number_editor.dart';
+import 'package:remote_remote/of_parameter_controller/widgets/point_editor.dart';
 import 'package:page_indicator/page_indicator.dart';
 import 'package:xml/xml.dart' as xml;
 

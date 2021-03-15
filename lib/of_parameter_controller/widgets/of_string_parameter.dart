@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:osc_remote/of_parameter_controller/of_parameter_controller.dart';
+import 'package:remote_remote/of_parameter_controller/of_parameter_controller.dart';
 
 import '../types.dart';
 
