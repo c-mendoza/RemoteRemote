@@ -16,12 +16,11 @@ class OFStringParameter extends StatefulWidget {
 class OFStringParameterState extends State<OFStringParameter> {
   TextEditingController _textController;
 
-  OFStringParameterState() {
-
-  }
+  OFStringParameterState();
 
   @override
   void initState() {
+    super.initState();
     _textController =
       TextEditingController(text: widget.param.value.toString());
   }
