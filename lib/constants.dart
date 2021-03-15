@@ -34,7 +34,7 @@ const kPointEditorPadding = 70.0;
 const kListItemPadding  = EdgeInsets.fromLTRB(0, 10, 0, 10);
 
 final TextStyle kTitleTextStyle = TextStyle(
-  color: Colors.black,
+  color: Colors.white,
   fontSize: 25,
   fontFamily: "Roboto",
   letterSpacing: 8,
@@ -44,7 +44,7 @@ final TextStyle kTitleTextStyle = TextStyle(
 );
 
 final TextStyle kSubTitleTextStyle = TextStyle(
-  color: Colors.black,
+  color: Colors.white,
   fontSize: 25,
   fontFamily: "Roboto",
   letterSpacing: 1,

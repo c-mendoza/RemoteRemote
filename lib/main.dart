@@ -40,6 +40,9 @@ class ParameterEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color darkOrangeColor = Color.fromARGB(255, 71, 64, 61);
+    Color lightOrangeColor = Color.fromARGB(255, 196, 115, 24);
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => netController),
@@ -48,6 +51,18 @@ class ParameterEditor extends StatelessWidget {
       ],
       child: MaterialApp(
         home: HomePage(),
+        theme: ThemeData(
+          brightness: Brightness.dark,
+          primaryColor: darkOrangeColor,
+          accentColor: lightOrangeColor,
+          buttonColor: lightOrangeColor,
+          sliderTheme: SliderThemeData(
+            activeTrackColor: lightOrangeColor,
+            inactiveTrackColor: darkOrangeColor,
+            thumbColor: lightOrangeColor,
+          ),
+          toggleableActiveColor: lightOrangeColor,
+        ),
       ),
     );
   }
