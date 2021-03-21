@@ -9,6 +9,7 @@ class StyledButton extends StatelessWidget {
   final num fontSize;
   final num letterSpacing;
   final VoidCallback onPressed;
+  final EdgeInsets padding;
 
   const StyledButton(
     {Key key,
@@ -16,13 +17,14 @@ class StyledButton extends StatelessWidget {
       this.color,
       this.fontSize = 20.0,
       this.letterSpacing = 1.0,
-      this.onPressed})
+      this.onPressed,
+      this.padding = const EdgeInsets.all(8.0)})
     : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: padding,
       child: RaisedButton(
         onPressed: onPressed,
         elevation: 0,
