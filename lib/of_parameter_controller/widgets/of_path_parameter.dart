@@ -10,7 +10,7 @@ import 'package:xml/xml.dart' as xml;
 import '../../constants.dart';
 import '../of_parameter_controller.dart';
 import '../types.dart';
-import 'EditorAppBar.dart';
+import 'editor_app_bar.dart';
 
 Logger pathLogger = Logger('PathParameter');
 
