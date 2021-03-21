@@ -13,9 +13,9 @@ import 'package:remote_remote/of_parameter_controller/widgets/of_number_paramete
 import 'package:remote_remote/of_parameter_controller/widgets/of_path_parameter.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/of_rect_parameter.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/of_string_parameter.dart';
-import 'package:property_change_notifier/property_change_notifier.dart';
-import 'package:wifi/wifi.dart';
+import 'package:remote_remote/of_parameter_controller/widgets/of_vector_parameter.dart';
 import 'package:xml/xml.dart' as xml;
+import 'package:vector_math/vector_math.dart';
 
 const String kGroupTypename = 'group';
 const String kIntTypename = 'int';
@@ -25,6 +25,9 @@ const String kBoolTypename = 'boolean';
 const String kFloatColorTypename = 'floatColor';
 const String kColorTypename = 'color';
 const String kStringTypename = 'string';
+const String kVec2Typename = 'vec2';
+const String kVec3Typename = 'vec3';
+const String kVec4Typename = 'vec4';
 const String kUnknownTypename = 'unknown';
 
 typedef DeserializingFunction = OFBaseParameter Function(
@@ -147,39 +150,38 @@ class OFParameterController with ChangeNotifier {
         });
 
     addType(
-      kColorTypename,
+        kColorTypename,
         ({value, type, name, path, min, max}) {
-        var colorChannels = [];
-        value.split(',').forEach((String s) {
-          var v = int.tryParse(s.trim());
-          if (v == null) {
-            v = 0;
-            log.severe('Error parsing color channel');
+          var colorChannels = [];
+          value.split(',').forEach((String s) {
+            var v = int.tryParse(s.trim());
+            if (v == null) {
+              v = 0;
+              log.severe('Error parsing color channel');
+            }
+            colorChannels.add(v);
+          });
+
+          if (colorChannels.length == 3) {
+            colorChannels.add(255); // Add alpha
           }
-          colorChannels.add(v);
-        });
 
-        if (colorChannels.length == 3) {
-          colorChannels.add(255); // Add alpha
-        }
+          if (colorChannels.length != 4) {
+            log.severe(
+                'In parsing ofColor: Incorrect number of color channels');
+            return _typeDeserializers[kStringTypename](
+                value: value, type: kUnknownTypename, name: name, path: path);
+          }
 
-        if (colorChannels.length != 4) {
-          log.severe(
-            'In parsing ofColor: Incorrect number of color channels');
-          return _typeDeserializers[kStringTypename](
-            value: value, type: kUnknownTypename, name: name, path: path);
-        }
-
-
-        var color = Color.fromARGB(colorChannels[3], colorChannels[0],
-          colorChannels[1], colorChannels[2]);
-        return OFParameter<Color>(color, name: name, type: type, path: path);
-      },
+          var color = Color.fromARGB(colorChannels[3], colorChannels[0],
+              colorChannels[1], colorChannels[2]);
+          return OFParameter<Color>(color, name: name, type: type, path: path);
+        },
         (param) => OFColorParameterWidget(param),
         (param) {
-        Color c = param.value as Color;
-        return '${c.red}, ${c.green}, ${c.blue}, ${c.alpha}';
-      });
+          Color c = param.value as Color;
+          return '${c.red}, ${c.green}, ${c.blue}, ${c.alpha}';
+        });
 
     addType('ofRectangle', ({value, type, name, path, min, max}) {
       return OFParameter<String>(
@@ -203,6 +205,42 @@ class OFParameterController with ChangeNotifier {
       return OFPathParameter(param);
     });
 
+    addType(kVec2Typename, ({value, type, name, path, min, max}) {
+      return OFParameter<Vector2>(_parseVector(value, 2),
+          name: name,
+          type: type,
+          path: path,
+          min: _parseVector(min, 2),
+          max: _parseVector(max, 2));
+    },
+        (param) => OFVectorParameterWidget(
+              param: param,
+              dims: 2,
+            ),
+        _serializeVector);
+
+    addType(kVec3Typename, ({value, type, name, path, min, max}) {
+      return OFParameter<Vector3>(_parseVector(value, 3),
+          name: name,
+          type: type,
+          path: path,
+          min: _parseVector(min, 3),
+          max: _parseVector(max, 3));
+    }, (param) => OFVectorParameterWidget(param: param, dims: 3),
+        _serializeVector);
+
+    addType(kVec4Typename, ({value, type, name, path, min, max}) {
+      return OFParameter<Vector4>(_parseVector(value, 4),
+          name: name,
+          type: type,
+          path: path,
+          min: _parseVector(min, 4),
+          max: _parseVector(max, 4));
+    }, (param) => OFVectorParameterWidget(param: param, dims: 4),
+        _serializeVector);
+
+    //TODO Serialize Vector
+
 //    addType('ofPolyline', ({value, type, name, path, min, max}) {
 //      return OFParameter<String>(
 //        value,
@@ -213,6 +251,39 @@ class OFParameterController with ChangeNotifier {
 //    }, (param) {
 //      return OFPolylineParameter(param);
 //    });
+  }
+
+  dynamic _parseVector(String stringValue, int dims) {
+    if (dims < 2 || dims > 4) {
+      log.severe(
+          'Error parsing Vector: Dimensions out of bounds. dims = $dims');
+      dims = 2;
+    }
+
+    List<double> values = [];
+
+    var components = stringValue.split(',');
+    if (components.length != dims) {
+      log.severe('Error parsing Vector: Dimensions do not match. dims = $dims '
+          'components = ${components.length}');
+      values.fillRange(0, values.length, 0);
+    } else {
+      for (var c in components) {
+        values.add(double.parse(c));
+      }
+    }
+
+    switch (dims) {
+      case 2:
+        var ret = Vector2.array(values);
+        return ret;
+      case 3:
+        var ret = Vector3.array(values);
+        return ret;
+      case 4:
+        var ret = Vector4.array(values);
+        return ret;
+    }
   }
 
   ////////////////// DATA AND SERIALIZATION
@@ -484,6 +555,18 @@ class OFParameterController with ChangeNotifier {
     });
 
     return foundGroup;
+  }
+
+  String _serializeVector(OFParameter<dynamic> param) {
+    var values = (param.value as Vector).storage;
+    String output = '';
+    for (int i = 0; i < values.length; i++) {
+      output += values[i].toString();
+      if (i < values.length - 1) {
+        output += ', ';
+      }
+    }
+    return output;
   }
 }
 
