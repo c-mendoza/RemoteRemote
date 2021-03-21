@@ -9,15 +9,12 @@ const kLabelStyle = TextStyle(
   //  color: Color(0xFF8D8E98),
 );
 
-const kButtonStyle = TextStyle(
-  fontSize: 18.0,
-  fontWeight: FontWeight.bold
-);
+const kButtonStyle = TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
 
-const kActionLabelStyle = TextStyle (
+const kActionLabelStyle = TextStyle(
   fontSize: 14.0,
 //  color: // Should be the accent color
-  );
+);
 
 const kSubLabelTextStyle = TextStyle(
   fontSize: 14.0,
@@ -31,7 +28,7 @@ const kPointEditorPadSize = Size(80.0, 80.0);
 const kPointEditorIconSize = 80.0;
 const kPointEditorPadding = 70.0;
 
-const kListItemPadding  = EdgeInsets.fromLTRB(0, 10, 0, 10);
+const kListItemPadding = EdgeInsets.fromLTRB(0, 10, 0, 10);
 
 final TextStyle kTitleTextStyle = TextStyle(
   color: Colors.white,
@@ -53,6 +50,11 @@ final TextStyle kSubTitleTextStyle = TextStyle(
   decoration: TextDecoration.none,
 );
 
-final GlobalKey<NavigatorState> kParamNavigatorKey = GlobalKey<NavigatorState>();
+final TextStyle kSubTitle2TextStyle =
+    kSubLabelTextStyle.copyWith(fontSize: 25, fontWeight: FontWeight.w100);
+final GlobalKey<NavigatorState> kParamNavigatorKey =
+    GlobalKey<NavigatorState>();
 
-final String kDebugIp = '192.168.1.13';
+const kPrefLastServerAddressKey = 'LastHostAddress';
+const kPrefNetInterfaceKey = 'NetworkInterfaceName';
+final String kDebugIp = '192.168.0.1';
