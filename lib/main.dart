@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/of_group_view.dart';
@@ -9,24 +11,39 @@ import 'package:remote_remote/pages/about_page.dart';
 import 'package:remote_remote/pages/net_status_page.dart';
 import 'package:remote_remote/pages/parameter_controller_page.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-void main() {
+void main() async {
   Logger.root.level = Level.ALL; // defaults to Level.INFO
   Logger.root.onRecord.listen((record) {
 //    print('${record.level.name}: ${record.time}: ${record.message}');
-    print('${record.level.name}: ${record.message}');
+    print('${record.loggerName}: ${record.message}');
   });
 
   // TestWidgetsFlutterBinding.ensureInitialized();
   WidgetsFlutterBinding.ensureInitialized();
 
-  var netController = NetworkingController();
+  var prefs = await SharedPreferences.getInstance();
+  var netInterfaceName = prefs.getString(kPrefNetInterfaceKey);
+  NetworkInterface networkInterface;
+  if (netInterfaceName != null) {
+    var list = await NetworkInterface.list(includeLinkLocal: true, type: InternetAddressType.IPv4);
+    try {
+      networkInterface = list.firstWhere((element) =>
+      element.name == netInterfaceName);
+    } catch (e) {
+      Logger.root.warning('Could not find network interface $netInterfaceName');
+      networkInterface = list.first;
+    }
+  }
+
+  var netController = NetworkingController(networkInterface);
   var paramController = OFParameterController(netController);
   var appModel = AppModel();
 
-  netController.hostAddress = kDebugIp;
+  netController.serverAddress = kDebugIp;
 
   return runApp(ParameterEditor(paramController, netController, appModel));
 }

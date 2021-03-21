@@ -4,8 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:osc/osc.dart';
 import 'package:remote_remote/of_parameter_controller/of_parameter_controller.dart';
-import 'package:remote_remote/of_parameter_controller/types.dart';
-import 'package:wifi/wifi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../constants.dart';
 
 const String kApiRootString = '/ofxrpMethod';
 const String kApiResponseString = '/ofxrpResponse';
@@ -23,13 +24,14 @@ enum NetStatus {
   ConnectionError,
   Waiting,
   ParserError,
+  NoNetworkInterface,
 }
 
 class NetworkingController with ChangeNotifier {
   // Networking
 
-  String _hostAddress = "172.27.224.45";
-  String _localIpAddress;
+  String _serverAddress = '192.168.0.1';
+  NetworkInterface _networkInterface;
   OSCSocket _osc;
   int _outPort = 12000;
   int _inPort = 12001;
@@ -54,41 +56,66 @@ class NetworkingController with ChangeNotifier {
 
   List<NetReply> replyRequests = [];
 
-  NetworkingController({int inputPort = 12001, int outputPort = 12000}) {
+  NetworkingController(this._networkInterface,
+      {int inputPort = 12001, int outputPort = 12000}) {
     _inPort = inputPort;
     _outPort = outputPort;
+    SharedPreferences.getInstance().then((prefs) {
+      var lastAddress = prefs.getString(kPrefLastServerAddressKey);
+      if (lastAddress != null) {
+        serverAddress = lastAddress;
+      }
+
+      var netInterfaceName = prefs.getString(kPrefNetInterfaceKey);
+      if (netInterfaceName != null) {
+        NetworkInterface.list(
+                type: InternetAddressType.IPv4,
+                includeLoopback: false,
+                includeLinkLocal: true)
+            .then((interfaces) {
+          if (interfaces.isEmpty) {
+            status = NetStatus.NoNetworkInterface;
+            return;
+          }
+          try {
+            var interface = interfaces
+                .firstWhere((element) => element.name == netInterfaceName);
+            networkInterface = interface;
+          } catch (e) {
+            log.warning('Did not find network interface: $netInterfaceName');
+          }
+        });
+      }
+    });
   }
 
-//  void setup(
-//      {@required String hostAddress,
-//      int inputPort = 12001,
-//      int outputPort = 12000}) {
-//    _setupOsc();
-//  }
-
   Future<bool> _setupOsc() async {
-    _localIpAddress = await Wifi.ip;
     _osc?.close();
     var hostIa;
     var localIa;
-
     try {
-      hostIa = InternetAddress(_hostAddress);
-      localIa = InternetAddress(_localIpAddress);
-    } catch (e) {
-      var ae = e as ArgumentError;
-      log.severe('${ae.message}. While trying to parse: ${ae.invalidValue}');
+      var results = await InternetAddress.lookup(_serverAddress,
+          type: InternetAddressType.IPv4);
+      for (var r in results) {
+        if (r.type == InternetAddressType.IPv4) {
+          log.fine('Resolved address to: ${r.address}');
+          hostIa = InternetAddress(r.address);
+        }
+      }
+
+      _osc = OSCSocket(
+          destination: hostIa,
+          destinationPort: _outPort,
+          serverPort: _inPort,
+          serverAddress: localIa);
+
+      await _osc.listen(this.oscListener);
+
+      return true;
+    } catch (error) {
+      log.warning(error);
       return false;
     }
-
-    _osc = OSCSocket(
-        destination: hostIa,
-        destinationPort: _outPort,
-        serverPort: _inPort,
-        serverAddress: localIa);
-
-    await _osc.listen(this.oscListener);
-    return true;
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -109,11 +136,11 @@ class NetworkingController with ChangeNotifier {
 
     switch (pathComponents[2]) {
       case 'connect':
-        callMethod('getModel', [localIpAddress]);
+        callMethod('getModel', [_networkInterface.addresses[0]]);
         break;
       case 'getModel':
         var res = _parameterController.parse(m.arguments[0]);
-        if(res) {
+        if (res) {
           status = NetStatus.Connected;
           _onConnectionSuccess?.call();
           _onConnectionSuccess = null;
@@ -123,7 +150,7 @@ class NetworkingController with ChangeNotifier {
         break;
       case 'revert':
         if (m.arguments[0] == 'OK') {
-          callMethod('getModel', [localIpAddress]);
+          callMethod('getModel', [_networkInterface.addresses[0]]);
         }
     }
   }
@@ -131,14 +158,15 @@ class NetworkingController with ChangeNotifier {
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
 
-  Future<void> connect(String host, OFParameterController controller, {Function onSuccess}) async {
-    _hostAddress = host;
+  Future<void> connect(String host, OFParameterController controller,
+      {Function onSuccess}) async {
+    _serverAddress = host;
     _parameterController = controller;
     _onConnectionSuccess = onSuccess;
 //    _parameterController.netController = this;
 
     await _setupOsc();
-    callMethod('connect', [localIpAddress]);
+    callMethod('connect', [_networkInterface.addresses[0]]);
   }
 
   Future<void> callMethod(String methodName, [List arguments]) async {
@@ -150,10 +178,11 @@ class NetworkingController with ChangeNotifier {
       if (code == 0) {
         log.warning('Sent 0 bytes for message: ${m.address}');
       }
-    } catch(e) {
+    } catch (e) {
       status = NetStatus.ConnectionError;
     }
   }
+
 //
 //  Future<void> sendParameter(OFParameter param) {
 //    return _callMethod('set', [param.path, param.toString()]);
@@ -171,19 +200,23 @@ class NetworkingController with ChangeNotifier {
     return callMethod('revert', ['']);
   }
 
-  String get hostAddress => _hostAddress;
+  String get serverAddress => _serverAddress;
 
-  set hostAddress(String value) {
-    _hostAddress = value;
+  set serverAddress(String value) {
+    _serverAddress = value;
+    SharedPreferences.getInstance()
+        .then((prefs) => prefs.setString(kPrefLastServerAddressKey, value));
     _setupOsc();
   }
 
-  String get localIpAddress => _localIpAddress;
-
-  set localIpAddress(String value) {
-    _localIpAddress = value;
+  set networkInterface(NetworkInterface ni) {
+    _networkInterface = ni;
+    SharedPreferences.getInstance().then((prefs) =>
+        prefs.setString(kPrefNetInterfaceKey, _networkInterface.name));
     _setupOsc();
   }
+
+  get networkInterface => _networkInterface;
 
   int get outPort => _outPort;
 
@@ -206,5 +239,4 @@ class NetworkingController with ChangeNotifier {
     _status = value;
     notifyListeners();
   }
-
 }
