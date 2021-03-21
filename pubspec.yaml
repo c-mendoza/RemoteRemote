@@ -15,8 +15,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   osc:
     git: https://github.com/pq/osc.git
-  get_ip: ^0.4.0
-  wifi: ^0.1.5
+  #  get_ip: ^0.4.0
+  #  wifi: ^0.1.5
   wakelock: ^0.5.0+2
   flutter_focus_watcher:
   flutter_colorpicker:
@@ -29,7 +29,10 @@ dependencies:
   xml: ^5.0.2
   flutter_markdown: ^0.6.0
   url_launcher: ^5.7.2
-
+  vector_math: ^2.1.0
+  shared_preferences: ^2.0.5
+  auto_size_text: ^2.1.0
+  auto_size_text_field: ^0.1.7
 
 dev_dependencies:
   flutter_test:
