@@ -35,7 +35,7 @@ class StyledButton extends StatelessWidget {
             text: TextSpan(children: [
               TextSpan(
                 text: text,
-                style: kTitleTextStyle.copyWith(
+                style: kButtonTextStyle.copyWith(
                   fontSize: fontSize,
                   letterSpacing: letterSpacing,
                 ),

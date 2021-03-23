@@ -30,7 +30,7 @@ const kPointEditorPadding = 70.0;
 
 const kListItemPadding = EdgeInsets.fromLTRB(0, 10, 0, 10);
 
-final TextStyle kTitleTextStyle = TextStyle(
+final TextStyle kButtonTextStyle = TextStyle(
   color: Colors.white,
   fontSize: 25,
   fontFamily: "Roboto",
