@@ -26,20 +26,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   var prefs = await SharedPreferences.getInstance();
-  var netInterfaceName = prefs.getString(kPrefNetInterfaceKey);
-  NetworkInterface networkInterface;
-  if (netInterfaceName != null) {
-    var list = await NetworkInterface.list(includeLinkLocal: true, type: InternetAddressType.IPv4);
-    try {
-      networkInterface = list.firstWhere((element) =>
-      element.name == netInterfaceName);
-    } catch (e) {
-      Logger.root.warning('Could not find network interface $netInterfaceName');
-      networkInterface = list.first;
-    }
-  }
+  var netInterfaces =
+      await NetworkInterface.list(type: InternetAddressType.IPv4);
 
-  var netController = NetworkingController(networkInterface);
+  // Should we do a check for network interfaces? This will probably
+  // crash if there are none
+  var netController = NetworkingController(netInterfaces[0]);
   var paramController = OFParameterController(netController);
   var appModel = AppModel();
 

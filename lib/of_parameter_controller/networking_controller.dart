@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -25,6 +26,7 @@ enum NetStatus {
   Waiting,
   ParserError,
   NoNetworkInterface,
+  ServerNotFound,
 }
 
 class NetworkingController with ChangeNotifier {
@@ -56,10 +58,14 @@ class NetworkingController with ChangeNotifier {
 
   List<NetReply> replyRequests = [];
 
-  NetworkingController(this._networkInterface,
-      {int inputPort = 12001, int outputPort = 12000}) {
+  List<String> _netIntNames = [];
+  List<NetworkInterface> _netInterfaces = [];
+  Future<List<NetworkInterface>> _interfacesFuture;
+
+  NetworkingController(NetworkInterface interface, {int inputPort = 12001, int outputPort = 12000}) {
     _inPort = inputPort;
     _outPort = outputPort;
+    _networkInterface = interface;
     SharedPreferences.getInstance().then((prefs) {
       var lastAddress = prefs.getString(kPrefLastServerAddressKey);
       if (lastAddress != null) {
@@ -87,6 +93,29 @@ class NetworkingController with ChangeNotifier {
         });
       }
     });
+
+    _interfacesFuture = NetworkInterface.list(
+        type: InternetAddressType.IPv4,
+        includeLoopback: false,
+        includeLinkLocal: true);
+  }
+
+  Future<List<String>> listNetworkInterfaces() {
+    var completer = Completer<List<String>>();
+    _interfacesFuture.then((value) {
+      _netInterfaces = value;
+      _netIntNames = [];
+      for (var i in _netInterfaces) {
+        _netIntNames.add(i.name);
+      }
+      completer.complete(_netIntNames);
+    });
+
+    return completer.future;
+  }
+
+  NetworkInterface getNetworkInterface({String name}) {
+    return _netInterfaces.firstWhere((element) => element.name == name);
   }
 
   Future<bool> _setupOsc() async {
@@ -114,6 +143,7 @@ class NetworkingController with ChangeNotifier {
       return true;
     } catch (error) {
       log.warning(error);
+      status = NetStatus.ServerNotFound;
       return false;
     }
   }
@@ -136,7 +166,7 @@ class NetworkingController with ChangeNotifier {
 
     switch (pathComponents[2]) {
       case 'connect':
-        callMethod('getModel', [_networkInterface.addresses[0]]);
+        callMethod('getModel', [_networkInterface.addresses[0].address]);
         break;
       case 'getModel':
         var res = _parameterController.parse(m.arguments[0]);
@@ -150,7 +180,7 @@ class NetworkingController with ChangeNotifier {
         break;
       case 'revert':
         if (m.arguments[0] == 'OK') {
-          callMethod('getModel', [_networkInterface.addresses[0]]);
+          callMethod('getModel', [_networkInterface.addresses[0].address]);
         }
     }
   }
@@ -164,15 +194,17 @@ class NetworkingController with ChangeNotifier {
     _parameterController = controller;
     _onConnectionSuccess = onSuccess;
 //    _parameterController.netController = this;
-
-    await _setupOsc();
-    callMethod('connect', [_networkInterface.addresses[0]]);
+    status = NetStatus.Waiting;
+    if (await _setupOsc()) {
+      callMethod('connect', [_networkInterface.addresses[0].address]);
+    } else {
+      log.severe('Error setting up OSC');
+    }
   }
 
   Future<void> callMethod(String methodName, [List arguments]) async {
     if (arguments == null) arguments = [0];
     var m = OSCMessage('$kApiRootString/$methodName', arguments: arguments);
-    status = NetStatus.Waiting;
     try {
       var code = await _osc.send(m);
       if (code == 0) {
@@ -204,16 +236,18 @@ class NetworkingController with ChangeNotifier {
 
   set serverAddress(String value) {
     _serverAddress = value;
+    status = NetStatus.Disconnected;
     SharedPreferences.getInstance()
         .then((prefs) => prefs.setString(kPrefLastServerAddressKey, value));
-    _setupOsc();
+    // _setupOsc();
   }
 
   set networkInterface(NetworkInterface ni) {
     _networkInterface = ni;
+    status = NetStatus.Disconnected;
     SharedPreferences.getInstance().then((prefs) =>
         prefs.setString(kPrefNetInterfaceKey, _networkInterface.name));
-    _setupOsc();
+    // _setupOsc();
   }
 
   get networkInterface => _networkInterface;
@@ -222,14 +256,14 @@ class NetworkingController with ChangeNotifier {
 
   set outPort(int value) {
     _outPort = value;
-    _setupOsc();
+    status = NetStatus.Disconnected;
   }
 
   int get inPort => _inPort;
 
   set inPort(int value) {
     _inPort = value;
-    _setupOsc();
+    status = NetStatus.Disconnected;
   }
 
   NetStatus get status => _status;
