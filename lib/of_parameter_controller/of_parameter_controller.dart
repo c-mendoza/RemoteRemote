@@ -50,9 +50,9 @@ class OFParameterController with ChangeNotifier {
   final NetworkingController netController;
   Logger log = Logger('OFParameterController');
 
-  Map<String, ParameterBuilderFunction> _typeBuilders = {};
-  Map<String, DeserializingFunction> _typeDeserializers = {};
-  Map<String, SerializingFunction> _typeSerializers = {};
+  static Map<String, ParameterBuilderFunction> _typeBuilders = {};
+  static Map<String, DeserializingFunction> _typeDeserializers = {};
+  static Map<String, SerializingFunction> _typeSerializers = {};
 
   Map<String, String> _serverMethods = {};
 
@@ -239,8 +239,6 @@ class OFParameterController with ChangeNotifier {
     }, (param) => OFVectorParameterWidget(param: param, dims: 4),
         _serializeVector);
 
-    //TODO Serialize Vector
-
 //    addType('ofPolyline', ({value, type, name, path, min, max}) {
 //      return OFParameter<String>(
 //        value,
@@ -291,7 +289,7 @@ class OFParameterController with ChangeNotifier {
   /////////////////////////////////////////
   /////////////////////////////////////////
 
-  void addType(String name, DeserializingFunction deserializer,
+  static void addType(String name, DeserializingFunction deserializer,
       ParameterBuilderFunction builder,
       [SerializingFunction serializer]) {
     _typeBuilders.putIfAbsent(name, () => builder);
