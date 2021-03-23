@@ -408,7 +408,9 @@ class OFParameterController with ChangeNotifier {
     }
   }
 
-  OFBaseParameter parameterForPath(String path) {}
+  OFBaseParameter parameterForPath(String path) {
+    log.severe('parameterForPath is not implemented');
+  }
 
   /// Deserializes a single parameter. If a parameter is a group it calls [_deserializeGroup].
   OFBaseParameter _deserializeParameter(xml.XmlElement element) {
