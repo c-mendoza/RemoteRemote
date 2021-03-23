@@ -1,7 +1,7 @@
-name: remote_remote
+name: RemoteRemote
 description: An ofxRemoteParameters client written in Flutter
 
-version: 1.0.0+1
+version: 0.1
 
 environment:
   sdk: ">=2.3.0 <3.0.0"
