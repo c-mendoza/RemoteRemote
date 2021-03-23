@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 const kLargeButtonTextStyle =
@@ -51,7 +50,7 @@ final TextStyle kSubTitleTextStyle = TextStyle(
 );
 
 final TextStyle kSubTitle2TextStyle =
-    kSubLabelTextStyle.copyWith(fontSize: 25, fontWeight: FontWeight.w100);
+    kSubLabelTextStyle.copyWith(fontSize: 23, fontWeight: FontWeight.w100);
 final GlobalKey<NavigatorState> kParamNavigatorKey =
     GlobalKey<NavigatorState>();
 
