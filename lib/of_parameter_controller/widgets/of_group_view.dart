@@ -24,13 +24,29 @@ class OFParameterGroupView extends StatelessWidget {
     return Consumer<OFParameterController>(
         builder: (context, paramController, __) {
       var group = paramController.getGroupForPath(groupPath);
+      var widgets = buildGroupChildren(context, group);
+      var color = kDarkOrangeColor.withAlpha(110);
       return Scaffold(
         endDrawer: ServerMethodsView(),
         body: FocusWatcher(
           child: Container(
-            child: ListView(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              children: buildGroupChildren(context, group),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(width: 0.25))
+            ),
+            child: ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                    child: widgets[index],
+                    padding: EdgeInsets.fromLTRB(20, 10, 20, 5),
+                    decoration: BoxDecoration(
+                      border: index == 0
+                          ? null
+                          : Border(top: BorderSide(width: 0.5)),
+                    color: index % 2 == 1 ? color : null,
+                    ));
+                return widgets[index];
+              },
+              itemCount: widgets.length,
             ),
           ),
         ),
@@ -64,15 +80,16 @@ class OFParameterGroupView extends StatelessWidget {
           .getBuilder(param);
     }
 
-    var border = Border(
-      top: BorderSide(width: 0.5),
-    );
-
-    return Container(
-        child: paramWidget,
-        padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-        decoration: BoxDecoration(
-          border: isFirst ? null : border,
-        ));
+    return paramWidget;
+    // var border = Border(
+    //   top: BorderSide(width: 0.5),
+    // );
+    //
+    // return Container(
+    //     child: paramWidget,
+    //     padding: EdgeInsets.fromLTRB(20, 10, 20, 5),
+    //     decoration: BoxDecoration(
+    //       border: isFirst ? null : border,
+    //     ));
   }
 }
