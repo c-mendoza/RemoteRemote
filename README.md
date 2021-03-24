@@ -43,4 +43,4 @@ Projects for iOS, MacOS, and Android, are provided.
 Any unknown data types will be treated as Strings, so technically you'll still be able to edit them, albeit not very conveniently.
 
 ### Adding New Types
-You can add support for new types by creating the appropriate Widget, serializer, and deserializer. Take a look at the `OFParameterController` constructor to see how types are added to the system.  Note that any new data types need to be supported by `ofxRemoteParameters::Server`, and that the 'stringification' of the parameter needs to jive between RemoteRemote and the Server.
+You can add support for new types by creating the appropriate Widget, serializer, and deserializer. Take a look at the `OFParameterController` constructor to see how types are added to the system.  Note that any new data types need to be supported by `ofxRemoteParameters::Server`, and that the 'stringification' of the parameter needs to be implemented in both RemoteRemote and the Server.
