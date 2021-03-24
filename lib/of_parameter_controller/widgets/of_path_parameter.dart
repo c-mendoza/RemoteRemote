@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_focus_watcher/flutter_focus_watcher.dart';
 import 'package:logging/logging.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/bool_editor.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/color_editor.dart';
@@ -311,19 +312,21 @@ class _PathEditorState extends State<PathEditor> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          Expanded(
-            child: PageView(
-              children: buildPointEditors(),
-              controller: _pageController,
+      child: FocusWatcher(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Expanded(
+              child: PageView(
+                children: buildPointEditors(),
+                controller: _pageController,
+              ),
             ),
-          ),
-          Align(
-              alignment: Alignment.center,
-              child: Text('Swipe for additional path points')),
-        ],
+            Align(
+                alignment: Alignment.center,
+                child: Text('Swipe for additional path points')),
+          ],
+        ),
       ),
     );
   }
@@ -509,7 +512,7 @@ class PathPointEditor extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    flex: 4,
+                    flex: 5,
                     child: Align(
                       alignment: Alignment.center,
                       child: buildPointEditorOption())),
