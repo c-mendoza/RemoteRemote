@@ -49,8 +49,8 @@ class ParameterEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color darkOrangeColor = Color.fromARGB(255, 71, 64, 61);
-    Color lightOrangeColor = Color.fromARGB(255, 196, 115, 24);
+    Color darkOrangeColor = kDarkOrangeColor;
+    Color lightOrangeColor = kLightOrangeColor;
 
     return MultiProvider(
       providers: [

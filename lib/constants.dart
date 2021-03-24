@@ -57,3 +57,6 @@ final GlobalKey<NavigatorState> kParamNavigatorKey =
 const kPrefLastServerAddressKey = 'LastHostAddress';
 const kPrefNetInterfaceKey = 'NetworkInterfaceName';
 final String kDebugIp = '192.168.0.1';
+
+Color kDarkOrangeColor = Color.fromARGB(255, 71, 64, 61);
+Color kLightOrangeColor = Color.fromARGB(255, 196, 115, 24);
