@@ -131,10 +131,11 @@ class StartScreenState extends State<StartScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: <Widget>[
-                                  Text(
+                                  AutoSizeText(
                                     "Server Output Port",
                                     textAlign: TextAlign.center,
                                     style: kSubTitle2TextStyle,
+                                    maxLines: 1,
                                   ),
                                   AutoSizeTextField(
                                     maxLines: 1,
@@ -162,10 +163,11 @@ class StartScreenState extends State<StartScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: <Widget>[
-                                  Text(
+                                  AutoSizeText(
                                     "Server Input Port",
                                     textAlign: TextAlign.center,
                                     style: kSubTitle2TextStyle,
+                                    maxLines: 1,
                                   ),
                                   AutoSizeTextField(
                                     maxLines: 1,
