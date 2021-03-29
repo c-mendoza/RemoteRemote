@@ -44,10 +44,14 @@ class OFVectorParameterWidget extends StatelessWidget {
     }
     return Column(
       children: [
-        Text(
-          param.name,
-          textAlign: TextAlign.left,
-          style: kLabelStyle,
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            param.name,
+            textAlign: TextAlign.left,
+            style: kLabelStyle,
+          ),
         ),
         ...editors
       ],
