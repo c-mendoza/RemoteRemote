@@ -478,7 +478,7 @@ class PathPointEditor extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           'Point ${pathPoint.index}',
-                          style: Theme.of(context).textTheme.headline,
+                          style: Theme.of(context).textTheme.headline1,
                           textAlign: TextAlign.center,
                         ),
                       ),

@@ -61,16 +61,19 @@ class ParameterEditor extends StatelessWidget {
       child: MaterialApp(
         home: HomePage(),
         theme: ThemeData(
-          brightness: Brightness.dark,
-          primaryColor: darkOrangeColor,
-          accentColor: lightOrangeColor,
-          buttonColor: lightOrangeColor,
+          // primaryColor: darkOrangeColor,
           sliderTheme: SliderThemeData(
             activeTrackColor: lightOrangeColor,
             inactiveTrackColor: darkOrangeColor,
             thumbColor: lightOrangeColor,
           ),
           toggleableActiveColor: lightOrangeColor,
+          colorScheme: ColorScheme.dark().copyWith(
+            primary: darkOrangeColor,
+            primaryVariant: darkOrangeColor,
+            secondary: lightOrangeColor,
+            secondaryVariant: lightOrangeColor,
+          ),
         ),
       ),
     );
