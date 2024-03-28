@@ -34,17 +34,17 @@ class NetworkingController with ChangeNotifier {
 
   String _serverAddress = '192.168.0.1';
   NetworkInterface _networkInterface;
-  OSCSocket _osc;
+  OSCSocket? _osc;
   int _outPort = 12000;
   int _inPort = 12001;
 
   bool _isConnected = false;
 
-  Function _onConnectionSuccess;
+  Function? _onConnectionSuccess;
 
   bool get isConnected => _isConnected;
 
-  OFParameterController _parameterController;
+  late OFParameterController _parameterController;
 
   set isConnected(bool value) {
     _isConnected = value;
@@ -60,12 +60,11 @@ class NetworkingController with ChangeNotifier {
 
   List<String> _netIntNames = [];
   List<NetworkInterface> _netInterfaces = [];
-  Future<List<NetworkInterface>> _interfacesFuture;
+  late Future<List<NetworkInterface>> _interfacesFuture;
 
-  NetworkingController(NetworkInterface interface, {int inputPort = 12001, int outputPort = 12000}) {
+  NetworkingController(this._networkInterface, {int inputPort = 12001, int outputPort = 12000}) {
     _inPort = inputPort;
     _outPort = outputPort;
-    _networkInterface = interface;
     SharedPreferences.getInstance().then((prefs) {
       var lastAddress = prefs.getString(kPrefLastServerAddressKey);
       if (lastAddress != null) {
@@ -114,7 +113,7 @@ class NetworkingController with ChangeNotifier {
     return completer.future;
   }
 
-  NetworkInterface getNetworkInterface({String name}) {
+  NetworkInterface getNetworkInterface({required String name}) {
     return _netInterfaces.firstWhere((element) => element.name == name);
   }
 
@@ -138,7 +137,7 @@ class NetworkingController with ChangeNotifier {
           serverPort: _inPort,
           serverAddress: localIa);
 
-      await _osc.listen(this.oscListener);
+      await _osc?.listen(this.oscListener);
 
       return true;
     } catch (error) {
@@ -169,7 +168,7 @@ class NetworkingController with ChangeNotifier {
         callMethod('getModel', [_networkInterface.addresses[0].address]);
         break;
       case 'getModel':
-        var res = _parameterController.parse(m.arguments[0]);
+        var res = _parameterController.parse(m.arguments[0] as String);
         if (res) {
           status = NetStatus.Connected;
           _onConnectionSuccess?.call();
@@ -189,7 +188,7 @@ class NetworkingController with ChangeNotifier {
   ////////////////////////////////////////////////////////////////////////
 
   Future<void> connect(String host, OFParameterController controller,
-      {Function onSuccess}) async {
+      {required Function onSuccess}) async {
     _serverAddress = host;
     _parameterController = controller;
     _onConnectionSuccess = onSuccess;
@@ -202,11 +201,10 @@ class NetworkingController with ChangeNotifier {
     }
   }
 
-  Future<void> callMethod(String methodName, [List arguments]) async {
-    if (arguments == null) arguments = [0];
-    var m = OSCMessage('$kApiRootString/$methodName', arguments: arguments);
+  Future<void> callMethod(String methodName, [List<Object>? arguments]) async {
+    var m = OSCMessage('$kApiRootString/$methodName', arguments: arguments ?? []);
     try {
-      var code = await _osc.send(m);
+      var code = await _osc!.send(m);
       if (code == 0) {
         log.warning('Sent 0 bytes for message: ${m.address}');
       }
@@ -250,7 +248,7 @@ class NetworkingController with ChangeNotifier {
     // _setupOsc();
   }
 
-  get networkInterface => _networkInterface;
+  NetworkInterface get networkInterface => _networkInterface;
 
   int get outPort => _outPort;
 

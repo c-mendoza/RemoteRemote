@@ -7,7 +7,7 @@ class BoolEditor extends StatefulWidget {
   final String label;
   final ValueChanged<bool> onChanged;
 
-  const BoolEditor(this.value, {this.label, Key key, this.onChanged})
+  const BoolEditor(this.value, {required this.label, Key? key, required this.onChanged})
       : super(key: key);
 
   @override
@@ -15,7 +15,7 @@ class BoolEditor extends StatefulWidget {
 }
 
 class BoolEditorState extends State<BoolEditor> {
-  bool value;
+  late bool value;
 
   @override
   void initState() {

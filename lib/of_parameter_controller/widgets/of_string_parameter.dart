@@ -1,20 +1,18 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:remote_remote/of_parameter_controller/of_parameter_controller.dart';
 
 import '../types.dart';
 
 class OFStringParameter extends StatefulWidget {
   final OFParameter param;
 
-  const OFStringParameter(this.param, {Key key}) : super(key: key);
+  const OFStringParameter(this.param, {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => OFStringParameterState();
 }
 
 class OFStringParameterState extends State<OFStringParameter> {
-  TextEditingController _textController;
+  late TextEditingController _textController;
 
   OFStringParameterState();
 

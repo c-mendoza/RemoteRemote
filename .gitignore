@@ -41,3 +41,8 @@ lib/generated_plugin_registrant.dart
 *.lock
 
 art/
+-android/
+-*/
+windows/
+web/
+linux/

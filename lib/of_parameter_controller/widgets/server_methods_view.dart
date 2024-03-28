@@ -21,7 +21,7 @@ class ServerMethodsView extends StatelessWidget {
           SizedBox(
             height: 200,
           ),
-          FlatButton(
+          TextButton(
             child: Text(
               'Save',
               style: kButtonStyle,
@@ -30,7 +30,7 @@ class ServerMethodsView extends StatelessWidget {
               paramController.save();
             },
           ),
-          FlatButton(
+          TextButton(
             child: Text(
               'Revert',
               style: kButtonStyle,
@@ -47,7 +47,7 @@ class ServerMethodsView extends StatelessWidget {
               // of sync with the values
             },
           ),
-          for (var k in serverMethods.keys) ServerMethodButton(k, serverMethods[k]),
+          for (var k in serverMethods.keys) ServerMethodButton(k, serverMethods[k]!),
         ],
       ),
     );
@@ -65,7 +65,7 @@ class ServerMethodButton extends StatelessWidget {
   Widget build(BuildContext context) {
     var paramController = Provider.of<OFParameterController>(
       context, listen: false);
-    return FlatButton(
+    return TextButton(
       child: Text(
         uiName,
         style: kButtonStyle,

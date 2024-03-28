@@ -9,7 +9,7 @@ class ColorEditor extends StatefulWidget {
   final ValueChanged<Color> onChanged;
 
   const ColorEditor(
-      {Key key, this.label, @required this.color, @required this.onChanged})
+      {Key? key, required this.label, required this.color, required this.onChanged})
       : super(key: key);
 
   @override
@@ -17,11 +17,11 @@ class ColorEditor extends StatefulWidget {
 }
 
 class _ColorEditorState extends State<ColorEditor> {
-  Color color;
+  // late Color color;
 
   @override
   void initState() {
-    color = widget.color;
+    // color = widget.color;
     super.initState();
   }
 
@@ -97,7 +97,7 @@ class _ColorEditorState extends State<ColorEditor> {
                           // ),
                         ),
                         actions: <Widget>[
-                          FlatButton(
+                          TextButton(
                             child: const Text('Done'),
                             onPressed: () {
                               setState(() {});

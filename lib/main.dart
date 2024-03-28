@@ -2,18 +2,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-import 'package:remote_remote/of_parameter_controller/widgets/of_group_view.dart';
+import 'package:provider/provider.dart';
 import 'package:remote_remote/app_model.dart';
 import 'package:remote_remote/of_parameter_controller/networking_controller.dart';
 import 'package:remote_remote/of_parameter_controller/of_parameter_controller.dart';
-import 'package:remote_remote/of_parameter_controller/widgets/of_group_view.dart';
 import 'package:remote_remote/pages/about_page.dart';
 import 'package:remote_remote/pages/net_status_page.dart';
 import 'package:remote_remote/pages/parameter_controller_page.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'constants.dart';
-import 'package:flutter_test/flutter_test.dart';
 
 void main() async {
   Logger.root.level = Level.ALL; // defaults to Level.INFO
@@ -67,12 +65,55 @@ class ParameterEditor extends StatelessWidget {
             inactiveTrackColor: darkOrangeColor,
             thumbColor: lightOrangeColor,
           ),
-          toggleableActiveColor: lightOrangeColor,
           colorScheme: ColorScheme.dark().copyWith(
             primary: darkOrangeColor,
-            primaryVariant: darkOrangeColor,
             secondary: lightOrangeColor,
-            secondaryVariant: lightOrangeColor,
+          ),
+          checkboxTheme: CheckboxThemeData(
+            fillColor: MaterialStateProperty.resolveWith<Color?>(
+                (Set<MaterialState> states) {
+              if (states.contains(MaterialState.disabled)) {
+                return null;
+              }
+              if (states.contains(MaterialState.selected)) {
+                return lightOrangeColor;
+              }
+              return null;
+            }),
+          ),
+          radioTheme: RadioThemeData(
+            fillColor: MaterialStateProperty.resolveWith<Color?>(
+                (Set<MaterialState> states) {
+              if (states.contains(MaterialState.disabled)) {
+                return null;
+              }
+              if (states.contains(MaterialState.selected)) {
+                return lightOrangeColor;
+              }
+              return null;
+            }),
+          ),
+          switchTheme: SwitchThemeData(
+            thumbColor: MaterialStateProperty.resolveWith<Color?>(
+                (Set<MaterialState> states) {
+              if (states.contains(MaterialState.disabled)) {
+                return null;
+              }
+              if (states.contains(MaterialState.selected)) {
+                return lightOrangeColor;
+              }
+              return null;
+            }),
+            trackColor: MaterialStateProperty.resolveWith<Color?>(
+                (Set<MaterialState> states) {
+              if (states.contains(MaterialState.disabled)) {
+                return null;
+              }
+              if (states.contains(MaterialState.selected)) {
+                return lightOrangeColor;
+              }
+              return null;
+            }),
           ),
         ),
       ),
@@ -87,27 +128,26 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var _selectedIndex = 0;
-  AppModel appModel;
-  PageController _pageController;
+  AppModel? appModel;
+  PageController _pageController = PageController();
 
   @override
   void initState() {
     super.initState();
     appModel = Provider.of<AppModel>(this.context, listen: false);
-    appModel.addListener(onModelChange);
-    _pageController = PageController();
+    appModel?.addListener(onModelChange);
   }
 
   @override
   void dispose() {
     super.dispose();
-    appModel.removeListener(onModelChange);
+    appModel?.removeListener(onModelChange);
   }
 
   void onModelChange() {
     if (_selectedIndex == 0) {
-      if (appModel.parametersReady) {
-        if (appModel.connectPressed) {
+      if (appModel!.parametersReady) {
+        if (appModel!.connectPressed) {
           setState(() {
             _selectedIndex = 1;
             _pageController.animateToPage(_selectedIndex,
@@ -141,16 +181,16 @@ class _HomePageState extends State<HomePage> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
-            title: Text('Status'),
+            label: 'Status',
             backgroundColor: Colors.black,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.view_list),
-            title: Text('Parameters'),
+            label: 'Parameters',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.info),
-            title: Text('About'),
+            label: 'About',
           ),
         ],
         type: BottomNavigationBarType.fixed,

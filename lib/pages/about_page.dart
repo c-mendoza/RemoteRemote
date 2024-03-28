@@ -3,26 +3,29 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../constants.dart';
-
 class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Padding(
+    return Center(
+        child: Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-      child: MarkdownView(markdownFilePath: 'assets/about.md',),
+      child: MarkdownView(
+        markdownFilePath: 'assets/about.md',
+      ),
     ));
   }
 }
 
 class MarkdownView extends StatefulWidget {
-
   /// The markdown file in the root bundle
   final String markdownFilePath;
-  final String additionalText;
-  final MarkdownStyleSheet styleSheet;
+  final String? additionalText;
+  final MarkdownStyleSheet? styleSheet;
 
-  const MarkdownView({Key key, this.markdownFilePath, this.additionalText, this.styleSheet}) : super(key: key);
+  const MarkdownView(
+      {required this.markdownFilePath,
+      this.additionalText,
+      this.styleSheet});
 
   @override
   State<StatefulWidget> createState() {
@@ -33,8 +36,8 @@ class MarkdownView extends StatefulWidget {
 
 class MarkdownViewState extends State<MarkdownView> {
   String _markdownString = "";
-  Future<String> _markdownFuture;
-  MarkdownStyleSheet _styleSheet;
+  late Future<String> _markdownFuture;
+  late MarkdownStyleSheet _styleSheet;
 
   void initState() {
     super.initState();
@@ -45,11 +48,6 @@ class MarkdownViewState extends State<MarkdownView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.styleSheet == null /*&& _styleSheet == null*/) {
-      _styleSheet = _createStyleSheet();
-    } else {
-      _styleSheet = widget.styleSheet;
-    }
 
     return FutureBuilder(
       future: _markdownFuture,
@@ -58,9 +56,9 @@ class MarkdownViewState extends State<MarkdownView> {
         // the data, so we have to check if we have the data to use it:
         if (snapshot.data == null) return Container();
 
-        _markdownString = snapshot.data;
+        _markdownString = snapshot.data as String;
         if (widget.additionalText != null) {
-          _markdownString += widget.additionalText;
+          _markdownString += widget.additionalText as String;
         }
         return Markdown(
           data: _markdownString,
@@ -85,54 +83,55 @@ class MarkdownViewState extends State<MarkdownView> {
     final kAppThemeData = Theme.of(context);
     return MarkdownStyleSheet(
       a: const TextStyle(color: Colors.blue),
-      p: kAppThemeData.textTheme.bodyText1.copyWith(
+      p: kAppThemeData.textTheme.bodyLarge?.copyWith(
         height: 1.5,
         fontWeight: FontWeight.w300,
         fontSize: 15,
       ),
-      code: kAppThemeData.textTheme.bodyText1.copyWith(
-        backgroundColor: kAppThemeData.cardTheme?.color ?? kAppThemeData.cardColor,
+      code: kAppThemeData.textTheme.bodyLarge?.copyWith(
+        backgroundColor:
+            kAppThemeData.cardTheme.color ?? kAppThemeData.cardColor,
         fontFamily: "monospace",
-        fontSize: kAppThemeData.textTheme.bodyText1.fontSize * 0.85,
+        fontSize: kAppThemeData.textTheme.bodyLarge!.fontSize! * 0.85,
       ),
       h1: TextStyle(
-        color: Colors.white,
-        fontSize: 36,
-        fontFamily: "Roboto",
-        letterSpacing: 1,
-        fontWeight: FontWeight.w100,
-        height: 1,
-        decoration: TextDecoration.none),
+          color: Colors.white,
+          fontSize: 36,
+          fontFamily: "Roboto",
+          letterSpacing: 1,
+          fontWeight: FontWeight.w100,
+          height: 1,
+          decoration: TextDecoration.none),
       h2: TextStyle(
-        color: Colors.white,
-        fontSize: 22,
-        fontFamily: 'Roboto',
-        fontWeight: FontWeight.w100,
-        height: 1.2,
-        decoration: TextDecoration.none),
+          color: Colors.white,
+          fontSize: 22,
+          fontFamily: 'Roboto',
+          fontWeight: FontWeight.w100,
+          height: 1.2,
+          decoration: TextDecoration.none),
       h3: TextStyle(
-        color: Colors.white,
-        fontSize: 20,
-        fontFamily: 'Roboto',
-        fontWeight: FontWeight.w100,
-        height: 1.2,
-        decoration: TextDecoration.none),
-      h4: kAppThemeData.textTheme.bodyText1,
-      h5: kAppThemeData.textTheme.bodyText1,
-      h6: kAppThemeData.textTheme.bodyText1,
+          color: Colors.white,
+          fontSize: 20,
+          fontFamily: 'Roboto',
+          fontWeight: FontWeight.w100,
+          height: 1.2,
+          decoration: TextDecoration.none),
+      h4: kAppThemeData.textTheme.bodyLarge,
+      h5: kAppThemeData.textTheme.bodyLarge,
+      h6: kAppThemeData.textTheme.bodyLarge,
       em: const TextStyle(fontStyle: FontStyle.italic),
       strong: const TextStyle(fontWeight: FontWeight.bold),
       del: const TextStyle(decoration: TextDecoration.lineThrough),
-      blockquote: kAppThemeData.textTheme.bodyText2,
-      img: kAppThemeData.textTheme.bodyText2,
-      checkbox: kAppThemeData.textTheme.bodyText2.copyWith(
+      blockquote: kAppThemeData.textTheme.bodyMedium,
+      img: kAppThemeData.textTheme.bodyMedium,
+      checkbox: kAppThemeData.textTheme.bodyMedium?.copyWith(
         color: kAppThemeData.primaryColor,
       ),
       blockSpacing: 25.0,
       listIndent: 24.0,
-      listBullet: kAppThemeData.textTheme.bodyText2,
+      listBullet: kAppThemeData.textTheme.bodyMedium,
       tableHead: const TextStyle(fontWeight: FontWeight.w600),
-      tableBody: kAppThemeData.textTheme.bodyText2,
+      tableBody: kAppThemeData.textTheme.bodyMedium,
       tableHeadAlign: TextAlign.center,
       tableBorder: TableBorder.all(
         color: kAppThemeData.dividerColor,
@@ -148,7 +147,7 @@ class MarkdownViewState extends State<MarkdownView> {
       ),
       codeblockPadding: const EdgeInsets.all(8.0),
       codeblockDecoration: BoxDecoration(
-        color: kAppThemeData.cardTheme?.color ?? kAppThemeData.cardColor,
+        color: kAppThemeData.cardTheme.color ?? kAppThemeData.cardColor,
         borderRadius: BorderRadius.circular(2.0),
       ),
       horizontalRuleDecoration: BoxDecoration(
@@ -162,4 +161,3 @@ class MarkdownViewState extends State<MarkdownView> {
     );
   }
 }
-

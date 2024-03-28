@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/number_editor.dart';
@@ -11,7 +10,7 @@ class PointEditor extends StatefulWidget {
   final String label;
 
   const PointEditor(
-      {Key key, @required this.point, @required this.onChange, this.label = ''})
+      {Key? key, required this.point, required this.onChange, this.label = ''})
       : super(key: key);
 
   @override
@@ -20,8 +19,8 @@ class PointEditor extends StatefulWidget {
 
 class _PointEditorState extends State<PointEditor>
     with SingleTickerProviderStateMixin {
-  AnimationController _controller;
-  Offset _point;
+  late AnimationController _controller;
+  late Offset _point;
 
   @override
   void initState() {
@@ -170,7 +169,7 @@ class _PointEditorState extends State<PointEditor>
         child: DragPad(
           width: kPointEditorPadSize.width,
           height: kPointEditorPadSize.height,
-          color: Theme.of(context).accentColor,
+          color: Theme.of(context).colorScheme.secondary,
           onDrag: (offset) {
             setState(() {
               offset *= 2.0;
@@ -197,9 +196,9 @@ class ArrowButton extends StatefulWidget {
   final double iconSize;
 
   const ArrowButton({
-    Key key,
-    @required this.direction,
-    @required this.onTap,
+    Key? key,
+    required this.direction,
+    required this.onTap,
     this.iconSize = 80.0,
   }) : super(key: key);
 
@@ -232,7 +231,7 @@ class _ArrowButtonState extends State<ArrowButton> {
           Icons.chevron_right,
           color: _isPressed
               ? Theme.of(context).highlightColor
-              : Theme.of(context).accentColor,
+              : Theme.of(context).colorScheme.secondary,
           size: widget.iconSize,
         ),
       ),
@@ -254,11 +253,11 @@ class DragPad extends StatefulWidget {
   final ValueChanged<Offset> onDrag;
 
   const DragPad(
-      {Key key,
-      this.width,
-      this.height,
+      {Key? key,
+      required this.width,
+      required this.height,
       this.color = Colors.black,
-      this.onDrag,
+      required this.onDrag,
       this.mode = DragPadMode.both})
       : super(key: key);
 
