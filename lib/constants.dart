@@ -8,7 +8,7 @@ const kLabelStyle = TextStyle(
   //  color: Color(0xFF8D8E98),
 );
 
-const kButtonStyle = TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
+const kButtonStyle = TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.white);
 
 const kActionLabelStyle = TextStyle(
   fontSize: 14.0,

@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:remote_remote/of_parameter_controller/widgets/of_group_view.dart';
 
 class EditorAppBar {
-  static Widget build(BuildContext context, String title) {
-    var currentRout = ModalRoute.of(context).settings.name;
+  static AppBar build(BuildContext context, String title) {
+    var currentRoute = ModalRoute.of(context)?.settings.name;
     return AppBar(
       title: Text(title),
-      leading: (currentRout != null)? IconButton(
+      leading: (currentRoute != null)? IconButton(
         icon: Icon(
           Icons.arrow_back_ios,
-          color: Theme.of(context).textTheme.headline1.color,
+          color: Theme.of(context).textTheme.displayLarge?.color,
         ),
         onPressed: () {
           Navigator.of(context).pop();
-          print(ModalRoute.of(context).settings.name);
+          print(ModalRoute.of(context)?.settings.name);
 
         },
       ) : null,

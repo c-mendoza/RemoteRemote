@@ -8,7 +8,7 @@ import 'number_editor.dart';
 class OFNumberParameterWidget extends StatelessWidget {
   final OFParameter param;
 
-  const OFNumberParameterWidget(this.param, {Key key}) : super(key: key);
+  const OFNumberParameterWidget(this.param, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,4 +24,3 @@ class OFNumberParameterWidget extends StatelessWidget {
     );
   }
 }
-

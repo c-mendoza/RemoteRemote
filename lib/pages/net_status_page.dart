@@ -2,9 +2,7 @@ import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:auto_size_text_field/auto_size_text_field.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_focus_watcher/flutter_focus_watcher.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:remote_remote/app_model.dart';
 import 'package:remote_remote/of_parameter_controller/networking_controller.dart';
@@ -12,11 +10,8 @@ import 'package:remote_remote/of_parameter_controller/of_parameter_controller.da
 import 'package:remote_remote/widgets/styled_button.dart';
 import 'package:provider/provider.dart';
 import 'package:remote_remote/constants.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
-import 'package:flutter/foundation.dart' as Foundation;
 
-import '../debug_constants.dart';
 
 class NetStatusPage extends StatelessWidget {
   @override
@@ -35,20 +30,17 @@ class StartScreen extends StatefulWidget {
 }
 
 class StartScreenState extends State<StartScreen> {
-  TextEditingController addressController;
-  TextEditingController inPortController;
-  TextEditingController outPortController;
+  TextEditingController addressController = TextEditingController(text: '0.0.0.0');
+  TextEditingController inPortController = TextEditingController();
+  TextEditingController outPortController = TextEditingController();
 
-  Function onData;
-  String _selectedInterfaceName;
-  List<String> _netIntNames;
-  List<NetworkInterface> _netInterfaces;
-  Future listFuture;
+  // Function onData;
+  String _selectedInterfaceName = '';
+  // List<String> _netIntNames;
+  // List<NetworkInterface> _netInterfaces;
+  late Future listFuture;
 
   StartScreenState() {
-    addressController = TextEditingController(text: '0.0.0.0');
-    inPortController = TextEditingController();
-    outPortController = TextEditingController();
     Wakelock.enable();
   }
 
@@ -216,13 +208,15 @@ class StartScreenState extends State<StartScreen> {
                                   iconSize: 24,
                                   elevation: 16,
                                   isExpanded: true,
-                                  onChanged: (String newValue) {
+                                  onChanged: (String? newValue) {
                                     setState(() {
-                                      _selectedInterfaceName = newValue;
-                                      netController.networkInterface =
-                                          netController.getNetworkInterface(
-                                              name: newValue);
-                                      appModel.parametersReady = false;
+                                      if (newValue != null) {
+                                        _selectedInterfaceName = newValue;
+                                        netController.networkInterface =
+                                            netController.getNetworkInterface(
+                                                name: newValue);
+                                        appModel.parametersReady = false;
+                                      }
                                     });
                                   },
                                   items: interfaces
@@ -239,8 +233,8 @@ class StartScreenState extends State<StartScreen> {
                                           maxLines: 1,
                                           maxFontSize: Theme.of(context)
                                               .textTheme
-                                              .headline2
-                                              .fontSize,
+                                              .displayMedium
+                                              ?.fontSize ?? 10,
                                           minFontSize: 8,
                                           style: kLabelStyle,
                                         )),
@@ -255,6 +249,7 @@ class StartScreenState extends State<StartScreen> {
                     SizedBox(width: double.infinity, height: 12),
                     StyledButton(
                         text: "Connect",
+                        color: kDarkOrangeColor,
                         onPressed: () {
                           appModel.parametersReady = false;
                           appModel.connectPressed = false;
@@ -295,7 +290,7 @@ class StartScreenState extends State<StartScreen> {
 class StatusDisplay extends StatelessWidget {
   final NetStatus status;
 
-  const StatusDisplay({Key key, @required this.status}) : super(key: key);
+  const StatusDisplay({Key? key, required this.status}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -320,7 +315,7 @@ class StatusDisplay extends StatelessWidget {
         break;
       case NetStatus.Waiting:
         return SpinKitDualRing(
-          color: Theme.of(context).accentColor,
+          color: Theme.of(context).colorScheme.secondary,
           size: 28,
         );
         break;
@@ -337,12 +332,12 @@ class StatusDisplay extends StatelessWidget {
 
 class BottomButton extends StatelessWidget {
   final String label;
-  final Function onTap;
+  final void Function()? onTap;
 
   const BottomButton({
-    Key key,
-    @required this.label,
-    @required this.onTap,
+    Key? key,
+    required this.label,
+    this.onTap,
   }) : super(key: key);
 
   @override

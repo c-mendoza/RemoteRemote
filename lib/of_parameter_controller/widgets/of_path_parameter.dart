@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_focus_watcher/flutter_focus_watcher.dart';
 import 'package:logging/logging.dart';
+import 'package:page_indicator/page_indicator.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/bool_editor.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/color_editor.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/number_editor.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/point_editor.dart';
-import 'package:page_indicator/page_indicator.dart';
 import 'package:xml/xml.dart' as xml;
 
 import '../../constants.dart';
@@ -18,7 +18,7 @@ Logger pathLogger = Logger('PathParameter');
 class OFPathParameter extends StatefulWidget {
   final OFParameter<String> param;
 
-  const OFPathParameter(this.param, {Key key}) : super(key: key);
+  const OFPathParameter(this.param, {Key? key}) : super(key: key);
 
   @override
   _OFPathParameterState createState() => _OFPathParameterState();
@@ -26,10 +26,10 @@ class OFPathParameter extends StatefulWidget {
 
 class _OFPathParameterState extends State<OFPathParameter> {
   List<PathPoint> pathPoints = [];
-  Color pathFillColor;
-  bool pathIsFilled;
-  Color pathStrokeColor;
-  double pathStrokeWidth;
+  late Color pathFillColor;
+  late bool pathIsFilled;
+  late Color pathStrokeColor;
+  late double pathStrokeWidth;
 
   @override
   void initState() {
@@ -96,7 +96,7 @@ class _OFPathParameterState extends State<OFPathParameter> {
                           alignment: Alignment.centerRight,
                           child: Icon(
                             Icons.navigate_next,
-                            size: kLabelStyle.fontSize * 1.5,
+                            size: kLabelStyle.fontSize! * 1.5,
                           )))
                 ],
               ),
@@ -165,9 +165,15 @@ class _OFPathParameterState extends State<OFPathParameter> {
         for (var p in pathPoints) {
           builder.element('point', nest: () {
             builder.attribute('type', p.type.index);
-            builder.attribute('position', offsetToString(p.position));
-            builder.attribute('cp1', offsetToString(p.cp1));
-            builder.attribute('cp2', offsetToString(p.cp2));
+            if (p.position != null) {
+              builder.attribute('position', offsetToString(p.position!));
+            }
+            try {
+              builder.attribute('cp1', offsetToString(p.cp1!));
+              builder.attribute('cp2', offsetToString(p.cp2!));
+            } catch (e) {
+
+            }
           });
         }
       });
@@ -187,11 +193,7 @@ class _OFPathParameterState extends State<OFPathParameter> {
   }
 
   String offsetToString(Offset o) {
-    if (o == null) {
-      return '0, 0, 0';
-    } else {
-      return '${o.dx.toStringAsFixed(2)}, ${o.dy.toStringAsFixed(2)}, 0';
-    }
+    return '${o.dx.toStringAsFixed(2)}, ${o.dy.toStringAsFixed(2)}, 0';
   }
 
   void deserialize() {
@@ -213,22 +215,32 @@ class _OFPathParameterState extends State<OFPathParameter> {
     int index = 0;
     // TODO: more error checking in path deserialization
     for (var el in pointElements) {
-      var commandTypeIndex = int.parse(el.getAttribute('type'));
+      var sType = el.getAttribute('type');
+      if (sType == null) {
+        continue;
+      }
+
+      var sPosition = el.getAttribute('position');
+      if (sPosition == null) {
+        continue;
+      }
+
+      var commandTypeIndex = int.parse(sType);
       var commandType = typeForInt(commandTypeIndex);
       var pathPoint = PathPoint(index++, commandType);
       switch (commandType) {
         case PathPointType.moveTo:
         case PathPointType.lineTo:
         case PathPointType.curveTo:
-          pathPoint.position = offsetFromString(el.getAttribute('position'));
+          pathPoint.position = offsetFromString(sPosition);
           pathPoint.cp1 = Offset(0, 0);
           pathPoint.cp2 = Offset(0, 0);
           break;
         case PathPointType.bezierTo:
         case PathPointType.quadBezierTo:
-          pathPoint.position = offsetFromString(el.getAttribute('position'));
-          pathPoint.cp1 = offsetFromString(el.getAttribute('cp1'));
-          pathPoint.cp2 = offsetFromString(el.getAttribute('cp2'));
+          pathPoint.position = offsetFromString(sPosition);
+          pathPoint.cp1 = offsetFromString(el.getAttribute('cp1') ?? sPosition);
+          pathPoint.cp2 = offsetFromString(el.getAttribute('cp2') ?? sPosition);
           break;
         case PathPointType.close:
           // Nothing to do for close
@@ -243,13 +255,28 @@ class _OFPathParameterState extends State<OFPathParameter> {
     }
 
     var strokeXml = doc.rootElement.findElements('stroke').first;
-    pathStrokeColor =
-        OFParameterController.deserializeColor(strokeXml.getAttribute('color'));
-    pathStrokeWidth = double.parse(strokeXml.getAttribute('strokeWidth'));
+    var sStrokeColor;
+    var sFillColor;
+    if (strokeXml.getAttribute('color') != null) {
+      sStrokeColor = strokeXml.getAttribute('color');
+      pathStrokeColor =
+          OFParameterController.deserializeColor(sStrokeColor);
+    } else {
+      pathStrokeColor = Colors.black;
+    }
+
+
+    pathStrokeWidth = double.parse(strokeXml.getAttribute('strokeWidth') ?? '1');
 
     var fillXml = doc.rootElement.findElements('fill').first;
-    pathFillColor =
-        OFParameterController.deserializeColor(fillXml.getAttribute('color'));
+    var fillColor = fillXml.getAttribute('color');
+    if (fillColor != null) {
+      pathFillColor =
+          OFParameterController.deserializeColor(fillColor);
+    } else {
+      pathFillColor = Colors.white;
+    }
+
     pathIsFilled = fillXml.getAttribute('isFilled') == '1';
   }
 
@@ -294,14 +321,14 @@ class PathEditor extends StatefulWidget {
   final List<PathPoint> pathPoints;
   final ValueChanged<List<PathPoint>> onChange;
 
-  const PathEditor({Key key, this.pathPoints, this.onChange}) : super(key: key);
+  const PathEditor({Key? key, required this.pathPoints, required this.onChange}) : super(key: key);
 
   @override
   _PathEditorState createState() => _PathEditorState();
 }
 
 class _PathEditorState extends State<PathEditor> {
-  PageController _pageController;
+  late PageController _pageController;
 
   @override
   void initState() {
@@ -339,26 +366,26 @@ class _PathEditorState extends State<PathEditor> {
       if (pathPoint.type == PathPointType.close)
         break; // We don't handle sub paths
       list.add(PathPointEditor(
-        pathPoint: pathPoint,
-        onChange: (pathPoint) {
-          setState(() {
-            widget.pathPoints[pathPoint.index] = pathPoint;
-            widget.onChange(widget.pathPoints);
-          });
-        },
-        onPointAction: (PointActionType action) {
-          switch (action) {
-            case PointActionType.addPoint:
-              addPathPointAfterIndex(pathPoint.index);
-              break;
-            case PointActionType.convertPoint:
-              convertPathPoint(pathPoint);
-              break;
-            case PointActionType.deletePoint:
-              deletePathPoint(pathPoint);
-              break;
-          }
-        }));
+          pathPoint: pathPoint,
+          onChange: (pathPoint) {
+            setState(() {
+              widget.pathPoints[pathPoint.index] = pathPoint;
+              widget.onChange(widget.pathPoints);
+            });
+          },
+          onPointAction: (PointActionType action) {
+            switch (action) {
+              case PointActionType.addPoint:
+                addPathPointAfterIndex(pathPoint.index);
+                break;
+              case PointActionType.convertPoint:
+                convertPathPoint(pathPoint);
+                break;
+              case PointActionType.deletePoint:
+                deletePathPoint(pathPoint);
+                break;
+            }
+          }));
     }
     return list;
   }
@@ -370,12 +397,12 @@ class _PathEditorState extends State<PathEditor> {
       if (widget.pathPoints[index + 1].type != PathPointType.close) {
         var newPoint = PathPoint(index + 1, PathPointType.lineTo);
         newPoint.position = Offset.lerp(widget.pathPoints[index + 1].position,
-          widget.pathPoints[index].position, 0.5);
+            widget.pathPoints[index].position, 0.5)!;
         widget.pathPoints.insert(index + 1, newPoint);
       } else {
         var newPoint = PathPoint(index + 1, PathPointType.lineTo);
         newPoint.position = Offset.lerp(widget.pathPoints[index].position,
-          widget.pathPoints[0].position, 0.5);
+            widget.pathPoints[0].position, 0.5)!;
         widget.pathPoints.insert(index + 1, newPoint);
       }
     } else {
@@ -389,11 +416,11 @@ class _PathEditorState extends State<PathEditor> {
           // point at the end.
           var newPoint = PathPoint(index - 1, PathPointType.lineTo);
           newPoint.position = Offset.lerp(widget.pathPoints[index - 1].position,
-            widget.pathPoints[0].position, 0.5);
+              widget.pathPoints[0].position, 0.5)!;
           widget.pathPoints.insert(index - 1, newPoint);
         } else {
           var newPoint = PathPoint(index - 1, PathPointType.lineTo);
-          newPoint.position = widget.pathPoints[0].position + Offset(20, 20);
+          newPoint.position = widget.pathPoints[0].position! + Offset(20, 20);
           widget.pathPoints.insert(index - 1, newPoint);
         }
       }
@@ -455,8 +482,8 @@ class PathPointEditor extends StatelessWidget {
   final ValueChanged<PointActionType> onPointAction;
 
   const PathPointEditor(
-    {Key key, this.pathPoint, this.onChange, this.onPointAction})
-    : super(key: key);
+      {Key? key, required this.pathPoint, required this.onChange, required this.onPointAction})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -478,7 +505,7 @@ class PathPointEditor extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           'Point ${pathPoint.index}',
-                          style: Theme.of(context).textTheme.headline1,
+                          style: Theme.of(context).textTheme.displayLarge,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -490,7 +517,7 @@ class PathPointEditor extends StatelessWidget {
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        FlatButton(
+                        TextButton(
                           child: Text(
                             'Add point',
                             style: kButtonStyle,
@@ -499,7 +526,7 @@ class PathPointEditor extends StatelessWidget {
                             onPointAction(PointActionType.addPoint);
                           },
                         ),
-                        FlatButton(
+                        TextButton(
                           child: Text(
                             'Delete point',
                             style: kButtonStyle,
@@ -512,11 +539,10 @@ class PathPointEditor extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    flex: 5,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: buildPointEditorOption())),
-
+                      flex: 5,
+                      child: Align(
+                          alignment: Alignment.center,
+                          child: buildPointEditorOption())),
                 ],
               ),
             ),
@@ -538,63 +564,62 @@ class PathPointEditor extends StatelessWidget {
         Expanded(
           flex: 1,
           child: pathPoint.type != PathPointType.moveTo
-            ? PopupMenuButton(
-            onSelected: (sel) {
-              switch (sel) {
-                case 0: //Add
-                  _setPointType(pathPoint, PathPointType.lineTo);
-                  break;
-                case 1: // Convert
-                  _setPointType(pathPoint, PathPointType.curveTo);
-                  break;
-                case 2:
-                  _setPointType(pathPoint, PathPointType.bezierTo);
-                  break;
-              }
-            },
+              ? PopupMenuButton(
+                  onSelected: (sel) {
+                    switch (sel) {
+                      case 0: //Add
+                        _setPointType(pathPoint, PathPointType.lineTo);
+                        break;
+                      case 1: // Convert
+                        _setPointType(pathPoint, PathPointType.curveTo);
+                        break;
+                      case 2:
+                        _setPointType(pathPoint, PathPointType.bezierTo);
+                        break;
+                    }
+                  },
 //            offset: Offset(-10, -150),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(kBorderRadius))
-            ),
-            child: Text(
-              _pointTypeString(pathPoint),
-              style: kButtonStyle,
-            ),
-            itemBuilder: (BuildContext context) =>
-            <PopupMenuEntry<int>>[
-              const PopupMenuItem<int>(
-                value: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text('Line'),
+                  shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.all(Radius.circular(kBorderRadius))),
+                  child: Text(
+                    _pointTypeString(pathPoint),
+                    style: kButtonStyle,
+                  ),
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+                    const PopupMenuItem<int>(
+                      value: 0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Text('Line'),
+                      ),
+                    ),
+                    const PopupMenuItem<int>(
+                      value: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Text('Curve'),
+                      ),
+                    ),
+                    const PopupMenuItem<int>(
+                      value: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Text('Bezier'),
+                      ),
+                    ),
+                  ],
+                )
+              : Text(
+                  _pointTypeString(pathPoint),
+                  style: kLabelStyle,
                 ),
-              ),
-              const PopupMenuItem<int>(
-                value: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text('Curve'),
-                ),
-              ),
-              const PopupMenuItem<int>(
-                value: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text('Bezier'),
-                ),
-              ),
-            ],
-          )
-            : Text(
-            _pointTypeString(pathPoint),
-            style: kLabelStyle,
-          ),
         )
       ],
     ));
 
     var positionPointEditor = PointEditor(
-      point: pathPoint.position,
+      point: pathPoint.position!,
       label: 'Position',
       onChange: (offset) {
         pathPoint.position = offset;
@@ -607,7 +632,7 @@ class PathPointEditor extends StatelessWidget {
       var pointEditors = <Widget>[];
       pointEditors.add(positionPointEditor);
       pointEditors.add(PointEditor(
-        point: pathPoint.cp1,
+        point: pathPoint.cp1!,
         label: 'Control Point 1',
         onChange: (offset) {
           pathPoint.cp1 = offset;
@@ -615,7 +640,7 @@ class PathPointEditor extends StatelessWidget {
         },
       ));
       pointEditors.add(PointEditor(
-        point: pathPoint.cp2,
+        point: pathPoint.cp2!,
         label: 'Control Point 2',
         onChange: (offset) {
           pathPoint.cp2 = offset;
@@ -629,7 +654,7 @@ class PathPointEditor extends StatelessWidget {
           child: PageIndicatorContainer(
             child: PageView(children: pointEditors),
             length: pointEditors.length,
-            indicatorColor: Colors.grey[200],
+            indicatorColor: Colors.grey.shade200,
           ),
         ),
       );
@@ -652,7 +677,7 @@ class PathPointEditor extends StatelessWidget {
       case PathPointType.close:
         return Container();
       case PathPointType.lineTo:
-        return FlatButton(
+        return TextButton(
           child: Text(
             'Convert to curve point',
             style: kButtonStyle,
@@ -661,7 +686,7 @@ class PathPointEditor extends StatelessWidget {
         );
         break;
       case PathPointType.curveTo:
-        return FlatButton(
+        return TextButton(
           child: Text(
             'Convert to bezier point',
             style: kButtonStyle,
@@ -670,7 +695,7 @@ class PathPointEditor extends StatelessWidget {
         );
         break;
       case PathPointType.bezierTo:
-        return FlatButton(
+        return TextButton(
           child: Text(
             'Convert to quad bezier point',
             style: kButtonStyle,
@@ -679,7 +704,7 @@ class PathPointEditor extends StatelessWidget {
         );
         break;
       case PathPointType.quadBezierTo:
-        return FlatButton(
+        return TextButton(
           child: Text(
             'Convert to line point',
             style: kButtonStyle,
@@ -744,9 +769,9 @@ enum PathPointType {
 }
 
 class PathPoint {
-  Offset position;
-  Offset cp1;
-  Offset cp2;
+  Offset? position;
+  Offset? cp1;
+  Offset? cp2;
   PathPointType type;
   int index;
 

@@ -24,13 +24,13 @@ class NumberEditor extends StatefulWidget {
   final String label;
 
   const NumberEditor(
-      {Key key,
-      this.onChanged,
+      {Key? key,
+      required this.onChanged,
       this.decimals = 3,
       this.min = 0,
       this.max = 0,
       this.value = 0,
-      this.label,
+      required this.label,
       this.showSlider = true,
       this.labelFlex = 3,
       this.numberFlex = 1,
@@ -45,9 +45,9 @@ class NumberEditor extends StatefulWidget {
 }
 
 class NumberEditorState extends State<NumberEditor> {
-  double value;
-  TextEditingController _textController;
-  FocusNode focusNode;
+  late double value;
+  late TextEditingController _textController;
+  late FocusNode focusNode;
 
   @override
   void initState() {
@@ -144,7 +144,7 @@ class NumberEditorState extends State<NumberEditor> {
       _textController.text = value.toStringAsFixed(0);
       widget.onChanged(value.toInt());
     } else {
-      value = val;
+      value = val.toDouble();
       _textController.text = formatNumber(val);
       widget.onChanged(value);
     }
@@ -182,8 +182,9 @@ class NumberEditorState extends State<NumberEditor> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: DragPad(
+            width: 60,
             height: 60,
-            color: Theme.of(context).accentColor,
+            color: Theme.of(context).colorScheme.secondary,
             mode: DragPadMode.horizontal,
             onDrag: (offset) {
               setState(() {
@@ -199,22 +200,22 @@ class NumberEditorState extends State<NumberEditor> {
   }
 
   bool _hasLimits() {
-    return widget.min != null && widget.max != null && widget.max != widget.min;
+    return widget.max != widget.min;
   }
 }
 
 class CustomTrackShape extends RoundedRectSliderTrackShape {
   Rect getPreferredRect({
-    @required RenderBox parentBox,
+    required RenderBox parentBox,
     Offset offset = Offset.zero,
-    @required SliderThemeData sliderTheme,
+    required SliderThemeData sliderTheme,
     bool isEnabled = false,
     bool isDiscrete = false,
   }) {
-    final double trackHeight = sliderTheme.trackHeight;
+    final double? trackHeight = sliderTheme.trackHeight;
     final double trackLeft = offset.dx;
     final double trackTop =
-        offset.dy + (parentBox.size.height - trackHeight) / 2;
+        offset.dy + (parentBox.size.height - trackHeight!) / 2;
     final double trackWidth = parentBox.size.width;
     return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }

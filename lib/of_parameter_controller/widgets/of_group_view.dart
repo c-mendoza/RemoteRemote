@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_focus_watcher/flutter_focus_watcher.dart';
 import 'package:remote_remote/constants.dart';
-import 'package:remote_remote/of_parameter_controller/networking_controller.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/editor_app_bar.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/server_methods_view.dart';
 import 'package:provider/provider.dart';
@@ -69,7 +68,7 @@ class OFParameterGroupView extends StatelessWidget {
   }
 
   Widget buildParameter(OFBaseParameter param, BuildContext context,
-      [bool isFirst]) {
+      [bool? isFirst]) {
     // TODO The container I have here should serve both the GroupStub and the paramWidget
     Widget paramWidget;
 

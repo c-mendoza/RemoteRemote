@@ -11,7 +11,7 @@ class OFVectorParameterWidget extends StatelessWidget {
   final OFParameter param;
   final int dims;
 
-  const OFVectorParameterWidget({Key key, this.param, this.dims})
+  const OFVectorParameterWidget({Key? key, required this.param, required this.dims})
       : super(key: key);
 
   @override

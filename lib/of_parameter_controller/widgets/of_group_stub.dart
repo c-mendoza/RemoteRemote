@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:remote_remote/constants.dart';
 import 'package:remote_remote/of_parameter_controller/of_parameter_controller.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +8,7 @@ import 'of_group_view.dart';
 class OFParameterGroupStub extends StatefulWidget {
   final String groupPath;
 
-  const OFParameterGroupStub(this.groupPath, {Key key}) : super(key: key);
+  const OFParameterGroupStub(this.groupPath, {Key? key}) : super(key: key);
 
   @override
   _OFParameterGroupStubState createState() => _OFParameterGroupStubState();
@@ -59,7 +57,7 @@ class _OFParameterGroupStubState extends State<OFParameterGroupStub> {
                 alignment: Alignment.centerRight,
                 child: Icon(
                   Icons.navigate_next,
-                  size: kLabelStyle.fontSize * 1.6,
+                  size: kLabelStyle.fontSize! * 1.6,
                 ),
               ),
             )

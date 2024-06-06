@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:remote_remote/constants.dart';
 
 class StyledButton extends StatelessWidget {
@@ -12,12 +11,12 @@ class StyledButton extends StatelessWidget {
   final EdgeInsets padding;
 
   const StyledButton(
-    {Key key,
-      this.text,
-      this.color,
+    { Key? key,
+      required this.text,
+      required this.color,
       this.fontSize = 20.0,
       this.letterSpacing = 1.0,
-      this.onPressed,
+      required this.onPressed,
       this.padding = const EdgeInsets.all(8.0)})
     : super(key: key);
 
@@ -25,26 +24,24 @@ class StyledButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: padding,
-      child: RaisedButton(
+      child: ElevatedButton(
         onPressed: onPressed,
-        elevation: 0,
-        highlightElevation: 0,
-        padding: EdgeInsets.fromLTRB(8, fontSize / 1, 8, fontSize / 1),
+        // padding: EdgeInsets.fromLTRB(8, fontSize / 1, 8, fontSize / 1),
         child: FittedBox(
           child: RichText(
             text: TextSpan(children: [
               TextSpan(
                 text: text,
                 style: kButtonTextStyle.copyWith(
-                  fontSize: fontSize,
-                  letterSpacing: letterSpacing,
+                  fontSize: fontSize.toDouble(),
+                  letterSpacing: letterSpacing.toDouble(),
                 ),
               )
             ])),
         ),
-        color: Theme.of(context).primaryColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(7))),
+        // color: Theme.of(context).primaryColor,
+        // shape: RoundedRectangleBorder(
+        //   borderRadius: BorderRadius.all(Radius.circular(7))),
       ),
     );
   }

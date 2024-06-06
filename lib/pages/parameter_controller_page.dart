@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:provider/provider.dart';
 import 'package:remote_remote/constants.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/of_group_view.dart';
@@ -17,7 +16,7 @@ class ParameterControllerPage extends StatelessWidget {
         initialRoute: '/',
         onGenerateRoute: (RouteSettings settings) {
           return MaterialPageRoute(
-              builder: (context) => OFParameterGroupView(settings.name));
+              builder: (context) => OFParameterGroupView(settings.name!));
         },
       );
     } else {
@@ -27,7 +26,7 @@ class ParameterControllerPage extends StatelessWidget {
               padding: const EdgeInsets.all(24.0),
               child: Text(
           'No parameters available.\n\nPlease go to the Status page and press Connect',
-          style: Theme.of(context).textTheme.headline5, textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.headlineSmall, textAlign: TextAlign.center,
         ),
             )),
       );
@@ -35,6 +34,6 @@ class ParameterControllerPage extends StatelessWidget {
   }
 }
 
-Widget bla;
+// Widget bla;
 
 //class _

@@ -8,16 +8,16 @@ import '../types.dart';
 class OFRectParameterWidget extends StatefulWidget {
   final OFParameter<String> param;
 
-  OFRectParameterWidget(this.param, {Key key}) : super(key: key);
+  OFRectParameterWidget(this.param, {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => OFRectParameterWidgetState();
 }
 
 class OFRectParameterWidgetState extends State<OFRectParameterWidget> {
-  double width;
-  double height;
-  Offset _anchorPoint;
+  late double width;
+  late double height;
+  late Offset _anchorPoint;
 
   @override
   void initState() {

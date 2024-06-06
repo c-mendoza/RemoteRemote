@@ -14,8 +14,8 @@ import 'package:remote_remote/of_parameter_controller/widgets/of_path_parameter.
 import 'package:remote_remote/of_parameter_controller/widgets/of_rect_parameter.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/of_string_parameter.dart';
 import 'package:remote_remote/of_parameter_controller/widgets/of_vector_parameter.dart';
-import 'package:xml/xml.dart' as xml;
 import 'package:vector_math/vector_math.dart';
+import 'package:xml/xml.dart' as xml;
 
 const String kGroupTypename = 'group';
 const String kIntTypename = 'int';
@@ -31,12 +31,12 @@ const String kVec4Typename = 'vec4';
 const String kUnknownTypename = 'unknown';
 
 typedef DeserializingFunction = OFBaseParameter Function(
-    {@required String value,
-    @required String type,
-    @required String name,
-    @required String path,
-    String min,
-    String max});
+    {required String value,
+    required String type,
+    required String name,
+    required String path,
+    String? min,
+    String? max});
 
 typedef ParameterBuilderFunction = Widget Function(OFParameter param);
 typedef SerializingFunction = String Function(OFParameter param);
@@ -46,7 +46,7 @@ final SerializingFunction defaultSerializer = (param) {
 };
 
 class OFParameterController with ChangeNotifier {
-  OFParameterGroup _group;
+  OFParameterGroup? _group;
   final NetworkingController netController;
   Logger log = Logger('OFParameterController');
 
@@ -60,51 +60,87 @@ class OFParameterController with ChangeNotifier {
     return UnmodifiableMapView(_serverMethods);
   }
 
-  OFParameterGroup get group => _group;
+  OFParameterGroup? get group => _group;
 
   OFParameterController(this.netController) {
-    addType(kStringTypename, ({value, type, name, path, min, max}) {
+    addType(kStringTypename, (
+        {required value,
+        required type,
+        required name,
+        required path,
+        min,
+        max}) {
       return OFParameter<String>(value, name: name, path: path, type: type);
     }, (param) => OFStringParameter(param));
 
-    addType(kUnknownTypename, ({value, type, name, path, min, max}) {
+    addType(kUnknownTypename, (
+        {required value,
+        required type,
+        required name,
+        required path,
+        min,
+        max}) {
       return OFParameter<String>(value, name: name, path: path, type: type);
     }, (param) => OFStringParameter(param));
 
-    addType(kIntTypename, ({value, type, name, path, min, max}) {
+    addType(kIntTypename, (
+        {required value,
+        required type,
+        required name,
+        required path,
+        min,
+        max}) {
       return OFParameter<int>(int.parse(value),
           name: name,
           type: type,
           path: path,
-          min: int.parse(min),
-          max: int.parse(max));
+          min: int.parse(min!),
+          max: int.parse(max!));
     }, (param) => OFNumberParameterWidget(param));
 
-    addType(kFloatTypename, ({value, type, name, path, min, max}) {
+    addType(kFloatTypename, (
+        {required value,
+        required type,
+        required name,
+        required path,
+        min,
+        max}) {
       return OFParameter<double>(double.parse(value),
           name: name,
           type: type,
           path: path,
-          min: double.parse(min),
-          max: double.parse(max));
+          min: double.parse(min!),
+          max: double.parse(max!));
     }, (param) => OFNumberParameterWidget(param));
 
-    addType(kDoubleTypename, ({value, type, name, path, min, max}) {
+    addType(kDoubleTypename, (
+        {required value,
+        required type,
+        required name,
+        required path,
+        min,
+        max}) {
       return OFParameter<double>(double.parse(value),
           name: name,
           type: type,
           path: path,
-          min: double.parse(min),
-          max: double.parse(max));
+          min: double.parse(min!),
+          max: double.parse(max!));
     }, (param) => OFNumberParameterWidget(param));
 
     addType(
         kBoolTypename,
-        ({value, type, name, path, min, max}) {
+        (
+            {required value,
+            required type,
+            required name,
+            required path,
+            min,
+            max}) {
           return OFParameter<bool>(value == '1',
               name: name, type: type, path: path);
         },
-        (param) => OFBooleanParameterWidget(param),
+        (param) => OFBooleanParameterWidget(param as OFParameter<bool>),
         (param) {
           bool val = param.value as bool;
           if (val) {
@@ -116,7 +152,13 @@ class OFParameterController with ChangeNotifier {
 
     addType(
         kFloatColorTypename,
-        ({value, type, name, path, min, max}) {
+        (
+            {required value,
+            required type,
+            required name,
+            required path,
+            min,
+            max}) {
           var colorChannels = [];
           value.split(',').forEach((String s) {
             var v = double.tryParse(s.trim());
@@ -131,7 +173,7 @@ class OFParameterController with ChangeNotifier {
           if (colorChannels.length != 4) {
             log.severe(
                 'In parsing ofFloatColor: Incorrect number of color channels');
-            return _typeDeserializers[kStringTypename](
+            return _typeDeserializers[kStringTypename]!(
                 value: value, type: kUnknownTypename, name: name, path: path);
           }
 
@@ -139,7 +181,7 @@ class OFParameterController with ChangeNotifier {
               colorChannels[1], colorChannels[2]);
           return OFParameter<Color>(color, name: name, type: type, path: path);
         },
-        (param) => OFColorParameterWidget(param),
+        (param) => OFColorParameterWidget(param as OFParameter<Color>),
         (param) {
           Color c = param.value as Color;
           var red = c.red.toDouble() / 255.0;
@@ -151,7 +193,13 @@ class OFParameterController with ChangeNotifier {
 
     addType(
         kColorTypename,
-        ({value, type, name, path, min, max}) {
+        (
+            {required value,
+            required type,
+            required name,
+            required path,
+            min,
+            max}) {
           var colorChannels = [];
           value.split(',').forEach((String s) {
             var v = int.tryParse(s.trim());
@@ -169,7 +217,7 @@ class OFParameterController with ChangeNotifier {
           if (colorChannels.length != 4) {
             log.severe(
                 'In parsing ofColor: Incorrect number of color channels');
-            return _typeDeserializers[kStringTypename](
+            return _typeDeserializers[kStringTypename]!(
                 value: value, type: kUnknownTypename, name: name, path: path);
           }
 
@@ -177,13 +225,19 @@ class OFParameterController with ChangeNotifier {
               colorChannels[1], colorChannels[2]);
           return OFParameter<Color>(color, name: name, type: type, path: path);
         },
-        (param) => OFColorParameterWidget(param),
+        (param) => OFColorParameterWidget(param as OFParameter<Color>),
         (param) {
           Color c = param.value as Color;
           return '${c.red}, ${c.green}, ${c.blue}, ${c.alpha}';
         });
 
-    addType('ofRectangle', ({value, type, name, path, min, max}) {
+    addType('ofRectangle', (
+        {required value,
+        required type,
+        required name,
+        required path,
+        min,
+        max}) {
       return OFParameter<String>(
         value,
         name: name,
@@ -191,10 +245,16 @@ class OFParameterController with ChangeNotifier {
         path: path,
       );
     }, (param) {
-      return OFRectParameterWidget(param);
+      return OFRectParameterWidget(param as OFParameter<String>);
     });
 
-    addType('ofPath', ({value, type, name, path, min, max}) {
+    addType('ofPath', (
+        {required value,
+        required type,
+        required name,
+        required path,
+        min,
+        max}) {
       return OFParameter<String>(
         value,
         name: name,
@@ -202,16 +262,22 @@ class OFParameterController with ChangeNotifier {
         path: path,
       );
     }, (param) {
-      return OFPathParameter(param);
+      return OFPathParameter(param as OFParameter<String>);
     });
 
-    addType(kVec2Typename, ({value, type, name, path, min, max}) {
+    addType(kVec2Typename, (
+            {required value,
+            required type,
+            required name,
+            required path,
+            min,
+            max}) {
       return OFParameter<Vector2>(_parseVector(value, 2),
           name: name,
           type: type,
           path: path,
-          min: _parseVector(min, 2),
-          max: _parseVector(max, 2));
+          min: _parseVector(min!, 2),
+          max: _parseVector(max!, 2));
     },
         (param) => OFVectorParameterWidget(
               param: param,
@@ -219,23 +285,35 @@ class OFParameterController with ChangeNotifier {
             ),
         _serializeVector);
 
-    addType(kVec3Typename, ({value, type, name, path, min, max}) {
+    addType(kVec3Typename, (
+            {required value,
+            required type,
+            required name,
+            required path,
+            min,
+            max}) {
       return OFParameter<Vector3>(_parseVector(value, 3),
           name: name,
           type: type,
           path: path,
-          min: _parseVector(min, 3),
-          max: _parseVector(max, 3));
+          min: _parseVector(min!, 3),
+          max: _parseVector(max!, 3));
     }, (param) => OFVectorParameterWidget(param: param, dims: 3),
         _serializeVector);
 
-    addType(kVec4Typename, ({value, type, name, path, min, max}) {
+    addType(kVec4Typename, (
+            {required value,
+            required type,
+            required name,
+            required path,
+            min,
+            max}) {
       return OFParameter<Vector4>(_parseVector(value, 4),
           name: name,
           type: type,
           path: path,
-          min: _parseVector(min, 4),
-          max: _parseVector(max, 4));
+          min: _parseVector(min!, 4),
+          max: _parseVector(max!, 4));
     }, (param) => OFVectorParameterWidget(param: param, dims: 4),
         _serializeVector);
 
@@ -291,11 +369,11 @@ class OFParameterController with ChangeNotifier {
 
   static void addType(String name, DeserializingFunction deserializer,
       ParameterBuilderFunction builder,
-      [SerializingFunction serializer]) {
+      [SerializingFunction? serializer]) {
     _typeBuilders.putIfAbsent(name, () => builder);
     _typeDeserializers.putIfAbsent(name, () => deserializer);
     serializer ??= defaultSerializer;
-    _typeSerializers.putIfAbsent(name, () => serializer);
+    _typeSerializers.putIfAbsent(name, () => serializer!);
   }
 
   /// Parses the XML string and starts the deserialization. Returns false if either
@@ -310,53 +388,58 @@ class OFParameterController with ChangeNotifier {
     }
 
     // If there is a previous group, dispose of all of the params
-    if (group != null) {
 //     print(group.children.first)
-      forEachParam(group, (OFParameter param) {
+    if (group != null) {
+      forEachParam(group!, (OFParameter param) {
         try {
-          param.dispose; // <---- Whaaaaaaa??? Why doesn't dispose() work?
+          param.dispose(); // <---- Whaaaaaaa??? Why doesn't dispose() work?
         } catch (e) {
           log.warning(e.toString());
         }
       });
     }
 
-    xml.XmlElement paramRoot;
-    xml.XmlElement methodsRoot;
+    xml.XmlElement? paramRoot;
+    xml.XmlElement? methodsRoot;
+    var children = document.firstChild?.children;
+    if (children == null) {
+      return false;
+    }
 
-    for (var el in document.firstChild.children) {
+    for (var el in children) {
       if (el.nodeType == xml.XmlNodeType.ELEMENT) {
         if ((el as xml.XmlElement).name.toString() == "Parameters") {
           paramRoot = el;
-        } else if ((el as xml.XmlElement).name.toString() == "Methods") {
+        } else if ((el).name.toString() == "Methods") {
           methodsRoot = el;
         }
       }
     }
+
+    if (paramRoot != null) {
 //    print(document.rootElement.findElements('children').first.root);
-    var bla = paramRoot.firstChild;
-    var groupRoot = paramRoot.descendants.firstWhere(
-        (xml.XmlNode element) => element.nodeType == xml.XmlNodeType.ELEMENT);
-    _group = _deserializeGroup(groupRoot);
-    if (_group == null) {
-      log.severe('Error parsing parameterGroup');
-      netController.status = NetStatus.ParserError;
-      return false;
+      var bla = paramRoot.firstChild;
+      var groupRoot = paramRoot.descendants.firstWhere(
+          (xml.XmlNode element) => element.nodeType == xml.XmlNodeType.ELEMENT);
+      // var group =
+      _group = _deserializeGroup(groupRoot as xml.XmlElement)!;
     }
 
-    for (var el in methodsRoot.children) {
-      if (el.nodeType == xml.XmlNodeType.ELEMENT) {
-        var methodName = (el as xml.XmlElement).name.toString();
-        var uiName = (el as xml.XmlElement).getAttribute('uiName');
-        // ignore 'default' methods, those are handled separately
-        if (methodName.contains('revert') ||
-            methodName.contains('save') ||
-            methodName.contains('set') ||
-            methodName.contains('connect') ||
-            methodName.contains('getModel')) {
-          // ignore
-        } else {
-          _serverMethods[methodName] = uiName;
+    if (methodsRoot != null) {
+      for (var el in methodsRoot.children) {
+        if (el.nodeType == xml.XmlNodeType.ELEMENT) {
+          var methodName = (el as xml.XmlElement).name.toString();
+          var uiName = (el).getAttribute('uiName');
+          // ignore 'default' methods, those are handled separately
+          if (methodName.contains('revert') ||
+              methodName.contains('save') ||
+              methodName.contains('set') ||
+              methodName.contains('connect') ||
+              methodName.contains('getModel')) {
+            // ignore
+          } else {
+            _serverMethods[methodName] = uiName!;
+          }
         }
       }
     }
@@ -367,7 +450,7 @@ class OFParameterController with ChangeNotifier {
   }
 
   /// Deserializes an ofParameterGroup
-  OFParameterGroup _deserializeGroup(xml.XmlElement element) {
+  OFParameterGroup? _deserializeGroup(xml.XmlElement element) {
     //Basic check, the root element should be type group
     var res = element.attributes
         .firstWhere((element) => element.name.toString() == 'type');
@@ -375,16 +458,23 @@ class OFParameterController with ChangeNotifier {
       log.severe("Error: Not a Group");
       return null;
     }
+    var maybeName = element.getAttribute('name');
+    if (maybeName != null) {
+      var group =
+          OFParameterGroup(name: maybeName, path: _pathForElement(element));
 
-    var group = OFParameterGroup(
-        name: element.getAttribute('name'), path: _pathForElement(element));
+      element.children.forEach((xml.XmlNode element) {
+        if (element.nodeType != xml.XmlNodeType.ELEMENT) return;
+        var param = _deserializeParameter(element! as xml.XmlElement);
+        if (param != null) {
+          group.addChild(param);
+        }
+      });
 
-    element.children.forEach((xml.XmlNode element) {
-      if (element.nodeType != xml.XmlNodeType.ELEMENT) return;
-      group.addChild(_deserializeParameter(element));
-    });
-
-    return group;
+      return group;
+    } else {
+      return null;
+    }
   }
 
   void forEachParam(OFParameterGroup group, Function f) {
@@ -392,7 +482,7 @@ class OFParameterController with ChangeNotifier {
       if (param.runtimeType != OFParameterGroup) {
         f(param as OFParameter);
       } else {
-        forEachParam(param, f);
+        forEachParam(param as OFParameterGroup, f);
       }
     }
   }
@@ -406,12 +496,12 @@ class OFParameterController with ChangeNotifier {
     }
   }
 
-  OFBaseParameter parameterForPath(String path) {
-    log.severe('parameterForPath is not implemented');
-  }
+  // OFBaseParameter parameterForPath(String path) {
+  //   log.severe('parameterForPath is not implemented');
+  // }
 
   /// Deserializes a single parameter. If a parameter is a group it calls [_deserializeGroup].
-  OFBaseParameter _deserializeParameter(xml.XmlElement element) {
+  OFBaseParameter? _deserializeParameter(xml.XmlElement element) {
     var typeString;
     try {
       typeString = element.getAttribute('type');
@@ -422,7 +512,7 @@ class OFParameterController with ChangeNotifier {
     if (typeString == kGroupTypename) return _deserializeGroup(element);
 
     var value = element.findElements('value').first.text;
-    var name = element.getAttribute('name');
+    var name = element.getAttribute('name')!;
 
     var min = '';
     var max = '';
@@ -438,7 +528,7 @@ class OFParameterController with ChangeNotifier {
 
     var param;
     if (_typeDeserializers.containsKey(typeString)) {
-      param = _typeDeserializers[typeString](
+      param = _typeDeserializers[typeString]!(
           value: value,
           name: name,
           type: typeString,
@@ -446,7 +536,7 @@ class OFParameterController with ChangeNotifier {
           min: min,
           max: max);
     } else {
-      param = _typeDeserializers[kUnknownTypename](
+      param = _typeDeserializers[kUnknownTypename]!(
           value: value,
           name: name,
           path: _pathForElement(element),
@@ -456,14 +546,14 @@ class OFParameterController with ChangeNotifier {
     param.addListener((changedParam) {
       String valueString = _serializeParameter(changedParam);
 //      print(valueString);
-      netController?.sendParameter(changedParam.path, valueString);
+      netController.sendParameter(changedParam.path, valueString);
     });
 
     return param;
   }
 
   String _serializeParameter(OFParameter param) {
-    return _typeSerializers[param.type](param);
+    return _typeSerializers[param.type]!(param);
   }
 
   /// Creates a calling path for a given element
@@ -493,9 +583,9 @@ class OFParameterController with ChangeNotifier {
 
   Widget getBuilder(OFBaseParameter param) {
     if (_typeBuilders.containsKey(param.type)) {
-      return _typeBuilders[param.type](param);
+      return _typeBuilders[param.type]!(param as OFParameter);
     } else {
-      return _typeBuilders[kUnknownTypename](param);
+      return _typeBuilders[kUnknownTypename]!(param as OFParameter);
     }
   }
 
@@ -544,13 +634,15 @@ class OFParameterController with ChangeNotifier {
   /////////////////////////////////////////
   /////////////////////////////////////////
 
-  OFParameterGroup getParameterGroup() => _group;
+  OFParameterGroup? getParameterGroup() => _group;
 
   OFParameterGroup getGroupForPath(String groupPath) {
-    if (groupPath == '/') return _group;
+    if (groupPath == '/') {
+      return _group!;
+    }
     var foundGroup;
 
-    forEachGroup(_group, (OFParameterGroup pg) {
+    forEachGroup(_group!, (OFParameterGroup pg) {
       if (pg.path == groupPath) foundGroup = pg;
     });
 
@@ -569,11 +661,11 @@ class OFParameterController with ChangeNotifier {
     return output;
   }
 }
-
-class ParamContainer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return null;
-  }
-}
+//
+// class ParamContainer extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     // TODO: implement build
+//     return null;
+//   }
+// }
