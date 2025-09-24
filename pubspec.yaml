@@ -17,14 +17,16 @@ dependencies:
     git: https://github.com/pq/osc.git
   #  get_ip: ^0.4.0
   #  wifi: ^0.1.5
-  wakelock: ^0.5.0+2
+#  wakelock: ^0.5.0+2
   flutter_focus_watcher:
   flutter_colorpicker:
   logging: ^1.0.0
   provider: ^5.0.0
   flutter_spinkit: ^5.0.0
   property_change_notifier: ^0.3.0
-  page_indicator: ^0.4.1
+  page_indicator:
+    git:
+      url: https://github.com/c-mendoza/flutter_page_indicator
   xml: ^5.0.2
   flutter_markdown: any
   url_launcher: any

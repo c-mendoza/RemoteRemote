@@ -10,7 +10,7 @@ import 'package:remote_remote/of_parameter_controller/of_parameter_controller.da
 import 'package:remote_remote/widgets/styled_button.dart';
 import 'package:provider/provider.dart';
 import 'package:remote_remote/constants.dart';
-import 'package:wakelock/wakelock.dart';
+// import 'package:wakelock/wakelock.dart';
 
 
 class NetStatusPage extends StatelessWidget {
@@ -41,7 +41,7 @@ class StartScreenState extends State<StartScreen> {
   late Future listFuture;
 
   StartScreenState() {
-    Wakelock.enable();
+    // Wakelock.enable();
   }
 
   @override
